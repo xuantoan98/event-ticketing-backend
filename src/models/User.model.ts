@@ -15,7 +15,7 @@ const userSchema = new Schema<IUserDocument> (
 		password: { type: String, required: true },
 		role: { 
       type: String, 
-      enum: ['organizer', 'customer'], 
+      enum: ['admin', 'organizer', 'customer'], 
       default: 'customer' 
     }
 	},

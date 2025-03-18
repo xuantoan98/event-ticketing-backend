@@ -31,6 +31,9 @@ export const authMiddleware = (roles?: string[]) => async (req: Request, res: Re
         error: 'Forbidden'
       })
     }
+    
+    req.user = user;
+    next();
   } catch (err) {
     return res.status(401).json({
       error: 'Invalid token'

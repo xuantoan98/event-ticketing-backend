@@ -25,6 +25,64 @@ export const validate = (method: string) => {
       });
     }
 
+    case 'login': {
+      return checkSchema({
+        email: { isEmail: true },
+        password: { exists: true }
+      });
+    }
+
+    case 'update': {
+      return checkSchema({
+        name: {
+          optional: true,
+          isString: true
+        },
+        password: {
+          optional: true,
+          isLength: {
+            options: {
+              min: 6
+            },
+            errorMessage: 'Mật khẩu phải có ít nhất 6 ký tự'
+          }
+        }
+      });
+    }
+
+    case 'list': {
+      return checkSchema({
+        page: {
+          optional: true,
+          isInt: { 
+            options: { min: 1 },
+            errorMessage: 'Page phải là số nguyên ≥ 1' 
+          }
+        },
+        limit: {
+          optional: true,
+          isInt: { 
+            options: { min: 1, max: 100 },
+            errorMessage: 'Limit phải từ 1 đến 100' 
+          }
+        },
+        sortBy: {
+          optional: true,
+          isIn: {
+            options: [['createdAt', 'name', 'email']],
+            errorMessage: 'Chỉ được sắp xếp theo: createdAt, name, email'
+          }
+        },
+        sortOrder: {
+          optional: true,
+          isIn: {
+            options: [['asc', 'desc']],
+            errorMessage: 'Thứ tự sắp xếp không hợp lệ'
+          }
+        }
+      })
+    }
+
     default:
       return [];
   }
