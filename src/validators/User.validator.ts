@@ -27,8 +27,15 @@ export const validate = (method: string) => {
 
     case 'login': {
       return checkSchema({
-        email: { isEmail: true },
-        password: { exists: true }
+        email: { 
+          isEmail: true, 
+          errorMessage: 'Email không hợp lệ',
+          notEmpty: true
+        },
+        password: {
+          exists: true,
+          notEmpty: true
+        }
       });
     }
 

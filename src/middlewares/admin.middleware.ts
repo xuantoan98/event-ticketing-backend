@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { formatResponse } from '../utils/response.util';
 
 export const requireAdmin = (
   req: Request,
@@ -6,9 +7,12 @@ export const requireAdmin = (
   next: NextFunction
 ) => {
   if (req.user?.role !== 'admin') {
-    return res.status(403).json({
-      error: 'Forbidden: Requires admin privileges'
-    });
+    return res.status(403).json(
+      formatResponse(
+        'error',
+        'Forbidden: Requires admin privileges'
+      )
+    )
   }
   next();
 };

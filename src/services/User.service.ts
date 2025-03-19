@@ -1,51 +1,66 @@
 import User from "../models/User.model";
-import { IUserCreate, IUserResponse, IUserDocument, IUserUpdate } from "../interfaces/User.interface";
+import { IUserResponse, IUserDocument } from "../interfaces/User.interface";
 import mongoose, { Types } from "mongoose";
 import { PaginationOptions, PaginationResult } from "../interfaces/common/pagination.interface";
 
 export class UserService {
-  async createUser(userData: IUserCreate): Promise<IUserDocument> {
-    const user = await User.create(userData);
-    return user;
+  async createUser(userData: IUserDocument): Promise<IUserDocument> {
+    const userExist = await User.findOne({
+      email: userData.email
+    })
+
+    if(userExist) {
+      throw new Error('Email đã tồn tại')
+    }
+
+    const user = await User.create(userData)
+    return user
   }
 
   async findUserByEmail(email: string): Promise<IUserDocument | null> {
-    return User.findOne({email});
+    return User.findOne({email})
   }
 
   async getUserById(userId: string) {
     if (!Types.ObjectId.isValid(userId)) {
-      return null;
+      throw new Error('ID người dùng không đúng')
     }
-    return User.findById(new mongoose.Schema.Types.ObjectId(userId));
+
+    const objectId = new mongoose.Types.ObjectId(userId)
+    return User.findById(objectId)
   }
 
   async authenticate(
     email: string,
     password: string
   ): Promise<IUserDocument> {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({
+      email: email,
+      status: 1 
+    })
+
     if(!user) {
-      throw new Error('Email không tồn tại');
+      throw new Error('Tài khoản không tồn tại hoặc đã bị vô hiệu hóa')
     }
-    const isMatch = await user.comparePassword(password);
+
+    const isMatch = await user.comparePassword(password)
     if(!isMatch) {
-      throw new Error('Mật khẩu không chính xác');
+      throw new Error('Mật khẩu không chính xác')
     }
-    return user;
+    return user
   }
 
   async updateUser(
     userId: string,
-    updateData: Partial<IUserUpdate>
+    updateData: Partial<IUserDocument>
   ): Promise<IUserDocument> {
     if(!Types.ObjectId.isValid(userId)) {
-      throw new Error('ID người dùng không đúng');
+      throw new Error('ID người dùng không đúng')
     }
 
     // Xóa các trường không được phép cập nhật
-    delete updateData.role;
-    delete updateData.email;
+    delete updateData.role
+    delete updateData.email
 
     const user = await User.findByIdAndUpdate(
       userId,
@@ -53,25 +68,29 @@ export class UserService {
       { new: true, runValidators: true }
     ).select('-password') as IUserDocument
 
-    return user;
+    return user
   }
 
   async deleteUser(userId: string) {
     if(!Types.ObjectId.isValid(userId)) {
-      throw new Error('ID người dùng không đúng');
+      throw new Error('ID người dùng không đúng')
     }
 
-    const result = await User.findOneAndDelete({ _id: userId })
-    return result;
+    // const result = await User.findOneAndDelete({ _id: userId })
+    const result = await User.findOneAndUpdate({
+      _id: userId,
+      status: 0
+    })
+    return result
   }
 
   async getPaginatedUsers(options: PaginationOptions): Promise<{
     data: IUserResponse[];
     pagination: PaginationResult
   }> {
-    const { page, limit, sortBy, sortOrder } = options;
-    const skip = (page - 1) * limit;
-    const sortField = sortBy as keyof IUserDocument;
+    const { page, limit, sortBy, sortOrder } = options
+    const skip = (page - 1) * limit
+    const sortField = sortBy as keyof IUserDocument
     const sort: Record<string, 1 | -1> = {
       [sortField]: sortOrder === 'asc' ? 1 : -1
     };
@@ -84,7 +103,7 @@ export class UserService {
         .limit(limit)
         .lean(),
       User.countDocuments()
-    ]);
+    ])
 
     return {
       data: users.map(user => ({
@@ -100,6 +119,6 @@ export class UserService {
         limit,
         totalPages: Math.ceil(total / limit)
       }
-    };
+    }
   }
 }

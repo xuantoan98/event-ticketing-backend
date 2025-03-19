@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
-import { IUserDocument, IUserCreate, IUserResponse } from "../interfaces/User.interface";
+import { IUserDocument, IUserResponse } from "../interfaces/User.interface";
 import jwt from 'jsonwebtoken';
 
 const userSchema = new Schema<IUserDocument> (
@@ -17,7 +17,12 @@ const userSchema = new Schema<IUserDocument> (
       type: String, 
       enum: ['admin', 'organizer', 'customer'], 
       default: 'customer' 
-    }
+    },
+		status: {
+			type: Number,
+			enum: [0, 1],
+			default: 1
+		}
 	},
 	{
 		timestamps: true,
@@ -62,7 +67,7 @@ userSchema.methods.toResponse = function():IUserResponse {
   };
 };
 
-userSchema.methods.generateAuthToken = function() {
+userSchema.methods.generateAuthToken = function() {	
 	return jwt.sign(
 		{
 			userId: this._id,

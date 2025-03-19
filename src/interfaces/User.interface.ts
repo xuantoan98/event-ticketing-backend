@@ -4,27 +4,12 @@ export interface IUserDocument extends Document {
   email: string;
   password: string;
   role: 'admin' | 'organizer' | 'customer';
+  status: number;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
   toResponse(): IUserResponse;
   generateAuthToken(): string;
-}
-
-export interface IUserCreate {
-  name: string;
-  email: string;
-  password: string;
-  role?: 'admin' | 'organizer' | 'customer';
-}
-
-export interface IUserUpdate {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  updatedAt: string;
 }
 
 export interface IUserResponse {

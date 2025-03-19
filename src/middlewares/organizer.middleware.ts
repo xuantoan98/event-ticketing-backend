@@ -1,20 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import { formatResponse } from '../utils/response.util';
 
-export const checkOwnership = (
+export const requireOrganizer = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const requestedUserId = req.params.id;
-  
-  if (requestedUserId !== req.user?.id.toString()) {
+  if (req.user?.role !== 'organizer') {
     return res.status(403).json(
       formatResponse(
         'error',
-        'Quyền bị hạn chế'
+        'Forbidden: Requires organizer privileges'
       )
     )
   }
   next();
-};  
+};

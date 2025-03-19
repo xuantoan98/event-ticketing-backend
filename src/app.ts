@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import userRoutes from "./routes/User.routes";
+import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
 
@@ -14,8 +15,9 @@ app.use(express.json());
 
 // Routes
 app.use('/api/users', userRoutes);
-// "email": "toankx.dev@gmail.com",
-// "password": "Admin@1234",
+
+// Error Handler
+app.use(errorHandler);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI!)

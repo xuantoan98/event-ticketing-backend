@@ -1,74 +1,119 @@
 import { Request, Response } from 'express';
-import { IUserCreate, IUserDocument, IUserResponse, IUserUpdate } from '../interfaces/User.interface';
 import { UserService } from '../services/User.service';
 import { validationResult } from 'express-validator';
+import { formatResponse } from '../utils/response.util';
 
 const userService = new UserService();
 
 export const register = async (
-  req: Request<{}, {}, IUserCreate>,
-  res: Response<{ user: IUserResponse; token: string } | { error: string }>
-): Promise<void> => {
-  // validate
+  req: Request,
+  res: Response
+) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res.status(400).json({
-      error: errors.array()[0].msg
-    })
-    return
+    res.status(400).json(
+      formatResponse(
+        'error',
+        errors.array()[0].msg
+      )
+    )
   }
 
   try {
     const user = await userService.createUser(req.body);
     const token = user.generateAuthToken();
 
-    res.status(201).json({
-      user: user.toResponse(),
-      token
-    });
+    res.status(201).json(
+      formatResponse(
+        'success',
+        'Đăng ký tài khoản thành công',
+        user.toResponse(),
+        token
+      )
+    )
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json(
+      formatResponse(
+        'error',
+        error.message
+      )
+    )
   }
-};
+}
 
 export const login = async(
-  req: Request<{}, {}, { email: string, password: string }>,
-  res: Response<{ user: IUserResponse; token: string} | { error: string }>
-): Promise<void> => {
+  req: Request,
+  res: Response
+) => {
   try {
-    const { email, password } = req.body;
-    const user = await userService.authenticate(email, password);
-    const token = user.generateAuthToken();
+    const { email, password } = req.body
+    const user = await userService.authenticate(email, password)
+    const token = user.generateAuthToken()
 
-    res.json({
-      user: user.toResponse(),
-      token
-    });
+    res.status(200).json(
+      formatResponse(
+        'success',
+        'Đăng nhập thành công',
+        {
+          user: user.toResponse(),
+          token
+        }
+      )
+    )
   } catch (error: any) {
-    res.status(401).json({
-      error: error.message.includes('Email') ? 'Email không tồn tại' : 'Mật khẩu không chính xác'
-    });
+    res.status(401).json(
+      formatResponse(
+        'error',
+        error.message
+      )
+    )
   }
-};
+}
 
 export const getCurrentUser = async(
   req: Request,
   res: Response
 ) => {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    if (!req.user) {
+      res.status(401).json(
+        formatResponse(
+          'error',
+          'Unauthorized'
+        )
+      )
+    }
+  
+    const user = await userService.getUserById(req.params.id.toString())
+    res.status(200).json(
+      formatResponse(
+        'success',
+        'Lấy thông tin người dùng thành công',
+        user?.toResponse()
+      )
+    )
+  } catch (error: any) {
+    res.status(500).json(
+      formatResponse(
+        'error',
+        'Lỗi hệ thống'
+      )
+    )
   }
-
-  return res.json(userService.getUserById(req.params.id.toString()))
 }
 
 export const updateUser = async(
   req: Request,
-  res: Response<{ user: IUserResponse } | { error: string }>
+  res: Response
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json(
+        formatResponse(
+          'error',
+          'Unauthorized'
+        )
+      )
     }
 
     // Chỉ cho phép cập nhật các trường này
@@ -81,24 +126,34 @@ export const updateUser = async(
     );
 
     if (!isValidOperation) {
-      return res.status(400).json({ 
-        error: 'Chỉ được cập nhật name hoặc password' 
-      });
+      res.status(400).json(
+        formatResponse(
+          'error',
+          'Chỉ được cập nhật name hoặc password'
+        )
+      )
     }
 
     // Cập nhật user từ request.user
     const user = await userService.updateUser(
-      req.user.id.toString(),
+      req.params.id.toString(),
       req.body
-    );
+    )
 
-    return res.status(201).json({
-      user: user.toResponse()
-    });
+    res.status(200).json(
+      formatResponse(
+        'success',
+        'Cập nhật thông tin người dùng thành công',
+        user.toResponse()
+      )
+    )
   } catch (error: any) {
-    return res.status(400).json({
-      error: error.message
-    });
+    res.status(400).json(
+      formatResponse(
+        'error',
+        error.message
+      )
+    )
   }
 }
 
@@ -109,25 +164,32 @@ export const deleteUser = async(
   try {
     const user = await userService.deleteUser(req.params.id.toString());
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      res.status(404).json(
+        formatResponse(
+          'error',
+          'Người dùng không tồn tại'
+        )
+      )
     }
-    return res.json({ success: true });
+    res.status(200).json(
+      formatResponse(
+        'success',
+        'Cập nhật trạng thái người dùng thành công'
+      )
+    )
   } catch (error: any) {
-    return res.status(400).json({ error: error.message });
+    res.status(400).json(
+      formatResponse(
+        'error',
+        error.message
+      )
+    )
   }
 }
 
 export const getUsers = async(
   req: Request,
-  res: Response<{
-    data: IUserResponse[];
-    pagination: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    }
-  } | { error: string }>
+  res: Response
 ) => {
   try {
     const { 
@@ -135,24 +197,34 @@ export const getUsers = async(
       limit = 10, 
       sortBy = 'createdAt', 
       sortOrder = 'desc' 
-    } = req.body as {
+    } = req.query as {
       page?: string;
       limit?: string;
       sortBy?: 'createdAt' | 'name' | 'email';
       sortOrder?: 'asc' | 'desc';
     }
-
     const result = await userService.getPaginatedUsers({
       page: parseInt(page as string),
       limit: parseInt(limit as string),
       sortBy,
       sortOrder
-    });
-
-    res.json(result);
-  } catch (err: any) {
-    res.status(500).json({
-      error: 'Lỗi hệ thống'
     })
+
+    res.status(200).json(
+      formatResponse(
+        'success',
+        'Lấy danh sách người dùng thành công',
+        result.data,
+        undefined,
+        result.pagination
+      )
+    )
+  } catch (error: any) {
+    res.status(500).json(
+      formatResponse(
+        'error',
+        'Lỗi hệ thống'
+      )
+    )
   }
 }

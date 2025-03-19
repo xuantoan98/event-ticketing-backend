@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { IUserDocument } from '../interfaces/User.interface';
 import { UserService } from '../services/User.service';
+import { formatResponse } from '../utils/response.util';
 
 const userService = new UserService();
 
@@ -14,9 +15,12 @@ declare module 'express' {
 export const authMiddleware = (roles?: string[]) => async (req: Request, res: Response, next: NextFunction) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if(!token) {
-    return res.status(401).json({
-      error: 'Unauthorized'
-    });
+    return res.status(401).json(
+      formatResponse(
+        'error',
+        'Unauthorized'
+      )
+    )
   }
 
   try {
@@ -25,19 +29,26 @@ export const authMiddleware = (roles?: string[]) => async (req: Request, res: Re
       role: string;
     };
 
+    // Sử dụng service để lấy user
     const user = await userService.getUserById(decoded.userId);
-    if(!user || (roles && !roles.includes(user.role))) {
-      return res.status(403).json({
-        error: 'Forbidden'
-      })
+    if (!user || (roles && !roles.includes(user.role))) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          'Forbidden'
+        )
+      )
     }
     
     req.user = user;
     next();
   } catch (err) {
-    return res.status(401).json({
-      error: 'Invalid token'
-    });
+    return res.status(401).json(
+      formatResponse(
+        'error',
+        'Invalid token'
+      )
+    )
   }
 };
 
