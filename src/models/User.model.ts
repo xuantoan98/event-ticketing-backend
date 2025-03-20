@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import { IUserDocument, IUserResponse } from "../interfaces/User.interface";
 import jwt from 'jsonwebtoken';
+import { Gender, Role, Status } from "../constants/enum";
 
 const userSchema = new Schema<IUserDocument> (
 	{
@@ -15,13 +16,25 @@ const userSchema = new Schema<IUserDocument> (
 		password: { type: String, required: true },
 		role: { 
       type: String, 
-      enum: ['admin', 'organizer', 'customer'], 
-      default: 'customer' 
+      enum: Role, 
+      default: Role.CUSTOMER 
     },
 		status: {
 			type: Number,
-			enum: [0, 1],
-			default: 1
+			enum: Status,
+			default: Status.ACTIVE
+		},
+		dateOfBirth: Date,
+		avatar: String,
+		address: String,
+		phone: {
+			type: String,
+			match: /([\+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/ // limit 10 number
+		},
+		gender: {
+			type: String,
+			enum: Object.values(Gender),
+			default: Gender.OTHER
 		}
 	},
 	{
