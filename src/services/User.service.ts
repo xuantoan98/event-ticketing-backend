@@ -52,22 +52,31 @@ export class UserService {
 
   async updateUser(
     userId: string,
-    updateData: Partial<IUserDocument>
-  ): Promise<IUserDocument> {
+    updateData: IUserDocument
+  ) {
     if(!Types.ObjectId.isValid(userId)) {
       throw new Error('ID người dùng không đúng')
     }
 
-    // Xóa các trường không được phép cập nhật
-    delete updateData.role
-    delete updateData.email
+    const allowedFields = [
+      'name', 'dateOfBirth', 'address', 
+      'gender', 'phone', 'avatar'
+    ]
+
+    const filererUpdate = Object.keys(updateData)
+      .filter(key => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = (updateData as any)[key]
+        return obj
+      }, {} as any)
 
     const user = await User.findByIdAndUpdate(
       userId,
-      updateData,
+      filererUpdate,
       { new: true, runValidators: true }
     ).select('-password') as IUserDocument
 
+    if (!user) throw new Error('User không tồn tại')
     return user
   }
 

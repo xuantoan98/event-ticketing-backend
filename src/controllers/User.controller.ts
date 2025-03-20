@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { UserService } from '../services/User.service';
 import { validationResult } from 'express-validator';
 import { formatResponse } from '../utils/response.util';
+import { IUserDocument } from '../interfaces/User.interface';
 
 const userService = new UserService();
 
@@ -259,6 +260,37 @@ export const searchUsers = async(
       formatResponse(
         'error',
         'Lỗi hệ thống'
+      )
+    )
+  }
+}
+
+export const updateAvatar = async(
+  req: Request,
+  res: Response
+) => {
+  try {
+    if(!req.file) throw new Error('Vui lòng chọn ảnh đại diện')
+
+    const user = await userService.updateUser(
+      req.params.id.toString(),
+      {
+        avatar: req.file.path
+      } as IUserDocument
+    )
+
+    res.status(200).json(
+      formatResponse(
+        'success',
+        'Cập nhật ảnh đại diện thành công',
+        user.toResponse()
+      )
+    )
+  } catch (error: any) {
+    res.status(400).json(
+      formatResponse(
+        'error',
+        error.message
       )
     )
   }

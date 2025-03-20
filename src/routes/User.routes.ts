@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { deleteUser, getCurrentUser, getUsers, login, register, searchUsers, updateUser } from "../controllers/User.controller";
+import { deleteUser, getCurrentUser, getUsers, login, register, searchUsers, updateAvatar, updateUser } from "../controllers/User.controller";
 import { validate } from "../validators/User.validator";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { requireAdmin } from "../middlewares/admin.middleware";
 import { checkOwnership } from "../middlewares/ownership.middleware";
 import { requireOrganizer } from "../middlewares/organizer.middleware";
+import { upload } from "../middlewares/upload.middleware";
 
 const router = Router()
 
@@ -18,5 +19,7 @@ router.get('/search', authMiddleware(), validate('search'), searchUsers)
 router.get('/:id', authMiddleware(), checkOwnership, getCurrentUser)
 router.put('/update:id', authMiddleware(), checkOwnership, requireAdmin, validate('update'), updateUser)
 router.delete('/:id', authMiddleware(),checkOwnership, requireAdmin, deleteUser)
+
+router.put('/avatar', authMiddleware(), upload.single('avatar'), updateAvatar)
 
 export default router

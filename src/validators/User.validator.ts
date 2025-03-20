@@ -1,4 +1,5 @@
 import { checkSchema } from 'express-validator'
+import { Gender } from '../constants/enum';
 
 export const validate = (method: string) => {
   switch (method) {
@@ -52,6 +53,26 @@ export const validate = (method: string) => {
               min: 6
             },
             errorMessage: 'Mật khẩu phải có ít nhất 6 ký tự'
+          }
+        },
+        dateOfBirth: {
+          optional: true,
+          isDate: {
+            errorMessage: 'Ngày sinh không hợp lệ (YYYY-MM-DD)'
+          }
+        },
+        gender: {
+          optional: true,
+          isIn: {
+            options: [Object.values(Gender)],
+            errorMessage: `Giới tính phải là một trong: ${Object.values(Gender).join(', ')}`
+          }
+        },
+        phone: {
+          optional: true,
+          matches: {
+            options: /([\+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/,
+            errorMessage: 'Số điện thoại không hợp lệ (10 số)'
           }
         }
       });
