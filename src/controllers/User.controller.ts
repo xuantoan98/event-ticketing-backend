@@ -228,3 +228,38 @@ export const getUsers = async(
     )
   }
 }
+
+export const searchUsers = async(
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { q, page = 1, limit = 10 } = req.query as {
+      q: string;
+      page?: string;
+      limit?: string;
+    }
+
+    const result = await userService.searchUsers(q, {
+      page: parseInt(page as string),
+      limit: parseInt(limit as string)
+    })
+
+    res.status(200).json(
+      formatResponse(
+        'success',
+        'Tìm kiếm người dùng thành công',
+        result.data,
+        undefined,
+        result.pagination
+      )
+    )
+  } catch (error: any) {
+    res.status(500).json(
+      formatResponse(
+        'error',
+        'Lỗi hệ thống'
+      )
+    )
+  }
+}

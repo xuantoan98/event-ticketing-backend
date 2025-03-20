@@ -121,4 +121,51 @@ export class UserService {
       }
     }
   }
+
+  async searchUsers(
+    query: string,
+    options: PaginationOptions
+  ): Promise<{
+    data: IUserResponse[];
+    pagination: PaginationResult;
+  }> {
+    const { page = 1, limit = 10 } = options
+    const skip = (page - 1) * limit
+    const searchRegex = new RegExp(query, 'i')
+    const [users, total] = await Promise.all([
+      User.find({
+        $or: [
+          { email: { $regex: searchRegex } },
+          { name: { $regex: searchRegex } }
+        ]
+      })
+      .select('-password')
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+
+      User.countDocuments({
+        $or: [
+          { email: { $regex: searchRegex } },
+          { name: { $regex: searchRegex } }
+        ]
+      })
+    ])
+
+    return {
+      data: users.map(user => ({
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt.toISOString()
+      })),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    }
+  }
 }

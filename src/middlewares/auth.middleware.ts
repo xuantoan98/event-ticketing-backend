@@ -27,7 +27,7 @@ export const authMiddleware = (roles?: string[]) => async (req: Request, res: Re
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { 
       userId: string;
       role: string;
-    };
+    }
 
     // Sử dụng service để lấy user
     const user = await userService.getUserById(decoded.userId);
@@ -40,7 +40,7 @@ export const authMiddleware = (roles?: string[]) => async (req: Request, res: Re
       )
     }
     
-    req.user = user;
+    req.user = user
     next();
   } catch (err) {
     return res.status(401).json(
@@ -50,5 +50,4 @@ export const authMiddleware = (roles?: string[]) => async (req: Request, res: Re
       )
     )
   }
-};
-
+}
