@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserService } from '../services/User.service';
+import { UserService } from '../services';
 import { validationResult } from 'express-validator';
 import { formatResponse } from '../utils/response.util';
 import { IUserDocument } from '../interfaces/User.interface';
@@ -28,7 +28,7 @@ export const register = async (
       formatResponse(
         'success',
         'Đăng ký tài khoản thành công',
-        user.toResponse(),
+        user,
         token
       )
     )
@@ -56,7 +56,7 @@ export const login = async(
         'success',
         'Đăng nhập thành công',
         {
-          user: user.toResponse(),
+          user: user,
           token
         }
       )
@@ -90,7 +90,7 @@ export const getCurrentUser = async(
       formatResponse(
         'success',
         'Lấy thông tin người dùng thành công',
-        user?.toResponse()
+        user
       )
     )
   } catch (error: any) {
@@ -145,7 +145,7 @@ export const updateUser = async(
       formatResponse(
         'success',
         'Cập nhật thông tin người dùng thành công',
-        user.toResponse()
+        user
       )
     )
   } catch (error: any) {
@@ -270,12 +270,28 @@ export const updateAvatar = async(
   res: Response
 ) => {
   try {
-    if(!req.file) throw new Error('Vui lòng chọn ảnh đại diện')
+    if(!req.user) {
+      return res.status(401).json(
+        formatResponse(
+          'error',
+          'Forbidden'
+        )
+      )
+    }
+
+    if(!req.file) {
+      return res.status(500).json(
+        formatResponse(
+          'error',
+          'Vui lòng chọn ảnh đại diện'
+        )
+      )
+    }
 
     const user = await userService.updateUser(
-      req.params.id.toString(),
+      req.user?.id.toString(),
       {
-        avatar: req.file.path
+        avatar: req.file?.path
       } as IUserDocument
     )
 
@@ -283,14 +299,14 @@ export const updateAvatar = async(
       formatResponse(
         'success',
         'Cập nhật ảnh đại diện thành công',
-        user.toResponse()
+        user
       )
     )
-  } catch (error: any) {
+  } catch (error: any){
     res.status(400).json(
       formatResponse(
         'error',
-        error.message
+        error
       )
     )
   }

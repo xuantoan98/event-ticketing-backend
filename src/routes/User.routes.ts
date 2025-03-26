@@ -1,25 +1,21 @@
 import { Router } from "express";
-import { deleteUser, getCurrentUser, getUsers, login, register, searchUsers, updateAvatar, updateUser } from "../controllers/User.controller";
-import { validate } from "../validators/User.validator";
-import { authMiddleware } from "../middlewares/auth.middleware";
-import { requireAdmin } from "../middlewares/admin.middleware";
-import { checkOwnership } from "../middlewares/ownership.middleware";
-import { requireOrganizer } from "../middlewares/organizer.middleware";
-import { upload } from "../middlewares/upload.middleware";
+import { userController } from "../controllers";
+import { validate } from "../validators";
+import { requireAdmin, authMiddleware, checkOwnership, requireOrganizer, handleAvatarUpload } from "../middlewares";
 
 const router = Router()
 
 // Public routes
-router.post('/register', validate('register'), register)
-router.post('/login', validate('login'), login)
+router.post('/register', validate('register'), userController.register)
+router.post('/login', validate('login'), userController.login)
 
 // Protected routes
-router.get('/', authMiddleware(), requireOrganizer, validate('list'), getUsers)
-router.get('/search', authMiddleware(), validate('search'), searchUsers)
-router.get('/:id', authMiddleware(), checkOwnership, getCurrentUser)
-router.put('/update:id', authMiddleware(), checkOwnership, requireAdmin, validate('update'), updateUser)
-router.delete('/:id', authMiddleware(),checkOwnership, requireAdmin, deleteUser)
+router.get('/', authMiddleware(), requireOrganizer, validate('list'), userController.getUsers)
+router.get('/search', authMiddleware(), validate('search'), userController.searchUsers)
+router.get('/:id', authMiddleware(), checkOwnership, userController.getCurrentUser)
+router.put('/update:id', authMiddleware(), checkOwnership, requireAdmin, validate('update'), userController.updateUser)
+router.delete('/:id', authMiddleware(),checkOwnership, requireAdmin, userController.deleteUser)
 
-router.put('/avatar', authMiddleware(), upload.single('avatar'), updateAvatar)
+router.put('/avatar', authMiddleware(), handleAvatarUpload, userController.updateAvatar)
 
 export default router

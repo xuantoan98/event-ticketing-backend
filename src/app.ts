@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import userRoutes from "./routes/User.routes";
+import mainRoutes from "./routes";
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/users', userRoutes);
+app.use('/api', mainRoutes);
 
 // Error Handler
 app.use(errorHandler);
