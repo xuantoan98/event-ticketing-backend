@@ -1,7 +1,9 @@
+import bcrypt from "bcrypt";
 import User from "../models/User.model";
 import { IUserResponse, IUserDocument } from "../interfaces/User.interface";
 import mongoose, { Types } from "mongoose";
 import { PaginationOptions, PaginationResult } from "../interfaces/common/pagination.interface";
+require('dotenv').config();
 
 export class UserService {
   async createUser(userData: IUserDocument): Promise<IUserDocument> {
@@ -176,5 +178,20 @@ export class UserService {
         totalPages: Math.ceil(total / limit)
       }
     }
+  }
+
+  async changePassword(userId: string, password: string) {
+    if(!Types.ObjectId.isValid(userId)) {
+      throw new Error('ID người dùng không đúng')
+    }
+
+    const salt = await bcrypt.genSalt(10)
+    const user = await User.findOneAndUpdate({
+      _id: userId,
+      password: await bcrypt.hash(password, salt)
+    }).select('-password') as IUserDocument
+
+    if (!user) throw new Error('User không tồn tại')      
+    return user
   }
 }

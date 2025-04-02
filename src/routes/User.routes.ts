@@ -15,7 +15,7 @@ router.get('/search', authMiddleware(), validate('search'), userController.searc
 router.get('/:id', authMiddleware(), checkOwnership, userController.getCurrentUser)
 router.put('/update:id', authMiddleware(), checkOwnership, requireAdmin, validate('update'), userController.updateUser)
 router.delete('/:id', authMiddleware(),checkOwnership, requireAdmin, userController.deleteUser)
-
 router.put('/avatar', authMiddleware(), handleAvatarUpload, userController.updateAvatar)
+router.post('/change-password', authMiddleware(), validate('changePassword'), userController.changePassword)
 
 export default router

@@ -311,3 +311,48 @@ export const updateAvatar = async(
     )
   }
 }
+
+export const changePassword = async(
+  req: Request,
+  res: Response
+) => {
+  try {
+    if(!req.user) {
+      return res.status(401).json(
+        formatResponse(
+          'error',
+          'Forbidden'
+        )
+      )
+    }
+
+    const { oldPassword, newPassword } = req.body
+    const isMatch = await req.user.comparePassword(oldPassword)
+
+    if(!isMatch) {
+      return res.status(500).json(
+        formatResponse(
+          'error',
+          'Mật khẩu cũ không chính xác'
+        )
+      )
+    }
+
+    const user = await userService.changePassword(req.user.id, newPassword)
+    res.status(200).json(
+      formatResponse(
+        'success',
+        'Cập nhật mật khẩu thành công. Vui lòng đăng nhập lại',
+        user
+      )
+    )
+
+  } catch (error: any) {
+    res.status(400).json(
+      formatResponse(
+        'error',
+        error
+      )
+    )
+  }
+}

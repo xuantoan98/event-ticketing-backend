@@ -35,7 +35,8 @@ const userSchema = new Schema<IUserDocument> (
 			type: String,
 			enum: Object.values(Gender),
 			default: Gender.OTHER
-		}
+		},
+		passwordChangedAt: Date,
 	},
 	{
 		timestamps: true,

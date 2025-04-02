@@ -13,6 +13,7 @@ export interface IUserDocument extends Document {
   phone?: string;
   createdAt: Date;
   updatedAt: Date;
+  passwordChangedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
   toResponse(): IUserResponse;
   generateAuthToken(): string;

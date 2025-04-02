@@ -136,6 +136,29 @@ export const validate = (method: string) => {
       })
     }
 
+    case 'changePassword': {
+      return checkSchema({
+        oldPassword: {
+          notEmpty: { errorMessage: 'Vui lòng nhập mật khẩu cũ' },
+          isLength: {
+            options: { min: 6 },
+            errorMessage: 'Mật khẩu phải có ít nhất 6 ký tự'
+          }
+        },
+        newPassword: {
+          notEmpty: { errorMessage: 'Vui lòng nhập mật khẩu mới' },
+          isLength: {
+            options: { min: 6 },
+            errorMessage: 'Mật khẩu phải có ít nhất 6 ký tự'
+          },
+          custom: {
+            options: (value, { req }) => value !== req.body.oldPassword,
+            errorMessage: 'Mật khẩu mới không được trùng mật khẩu cũ'
+          }
+        }
+      })
+    }
+
     default:
       return [];
   }
