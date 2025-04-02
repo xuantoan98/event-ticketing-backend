@@ -185,10 +185,12 @@ export class UserService {
       throw new Error('ID người dùng không đúng')
     }
 
-    const salt = await bcrypt.genSalt(10)
+    const saltRounds = parseInt(process.env.SALT || '10', 10);
+    const salt = await bcrypt.genSalt(saltRounds);
     const user = await User.findOneAndUpdate({
       _id: userId,
-      password: await bcrypt.hash(password, salt)
+      password: await bcrypt.hash(password, salt),
+      passwordChangedAt: new Date()
     }).select('-password') as IUserDocument
 
     if (!user) throw new Error('User không tồn tại')      
