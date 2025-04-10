@@ -1,6 +1,7 @@
 import { Document } from "mongoose";
 import { Gender } from "../constants/enum";
 export interface IUserDocument extends Document {
+  _id: string;
   name: string;
   email: string;
   password: string;
@@ -17,6 +18,7 @@ export interface IUserDocument extends Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
   toResponse(): IUserResponse;
   generateAuthToken(): string;
+  refreshTokens: string[];
 }
 
 export interface IUserResponse {

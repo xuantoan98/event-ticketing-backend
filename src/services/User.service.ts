@@ -39,7 +39,7 @@ export class UserService {
     const user = await User.findOne({
       email: email,
       status: 1 
-    })
+    }).select('+refreshTokens');
 
     if(!user) {
       throw new Error('Tài khoản không tồn tại hoặc đã bị vô hiệu hóa')
@@ -185,15 +185,18 @@ export class UserService {
       throw new Error('ID người dùng không đúng')
     }
 
+    const userExist = await User.findById(userId).select('+refreshTokens');
+    if (!userExist) throw new Error('Người dùng không tồn tại');
+
     const saltRounds = parseInt(process.env.SALT || '10', 10);
     const salt = await bcrypt.genSalt(saltRounds);
     const user = await User.findOneAndUpdate({
       _id: userId,
       password: await bcrypt.hash(password, salt),
+      refreshTokens: [],
       passwordChangedAt: new Date()
-    }).select('-password') as IUserDocument
+    }).select('-password') as IUserDocument;
 
-    if (!user) throw new Error('User không tồn tại')      
     return user
   }
 }

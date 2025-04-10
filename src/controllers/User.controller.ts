@@ -191,7 +191,7 @@ export const deleteUser = async(
 export const getUsers = async(
   req: Request,
   res: Response
-) => {
+) => {  
   try {
     const { 
       page = 1, 

@@ -37,6 +37,10 @@ const userSchema = new Schema<IUserDocument> (
 			default: Gender.OTHER
 		},
 		passwordChangedAt: Date,
+		refreshTokens: {
+			type: [String],
+			select: false // Not return in response
+		}
 	},
 	{
 		timestamps: true,
