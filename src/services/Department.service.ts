@@ -67,7 +67,6 @@ export class DepartmentService {
 
     const [departments, total] = await Promise.all([
       DepartmentModel.find()
-        .select('-password')
         .sort(sort)
         .skip(skip)
         .limit(limit)
@@ -101,7 +100,6 @@ export class DepartmentService {
           { email: { $regex: searchRegex } },
           { name: { $regex: searchRegex } }
         ]})
-        .select('-password')
         .sort(sort)
         .skip(skip)
         .limit(limit)

@@ -25,3 +25,14 @@ export enum UserMessages {
   PASSWORD_INCORRECT = 'Mật khẩu cũ không chính xác',
   UPDATE_PASSWORD_SUCCESSFULLY = 'Cập nhật mật khẩu thành công. Vui lòng đăng nhập lại'
 }
+
+export enum EventCategoriesMessages {
+  GET_ALL_EVENT_CATEGORY_SUCCESSFULLY = 'Lấy danh sách danh mục sự kiện thành công',
+  SEARCH_EVENT_CATEGORY_SUCCESSFULLY = 'Tìm kiếm danh mục sự kiện thành công',
+  GET_DETAIL_EVENT_CATEGORY_SUCCESSFULLY = 'Lấy chi tiết danh mục sự kiện thành công',
+  NOT_FOUND = 'Không tìm thấy danh mục sự kiện',
+  EVENT_CATEGORY_EXIT = 'Danh mục sự kiện đã tồn tại trong hệ thống',
+  CREATED = 'Tạo mới danh mục sự kiện thành công',
+  UPDATED = 'Cập nhật danh mục sự kiện thành công',
+  DELETED = 'Xóa danh mục sự kiện thành công'
+}

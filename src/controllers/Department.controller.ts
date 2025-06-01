@@ -103,15 +103,6 @@ export const search = async (req: Request, res: Response) => {
  */
 export const getDetailDepartment = async(req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      res.status(401).json(
-        formatResponse(
-          'error',
-          'Unauthorized'
-        )
-      )
-    }
-
     const department = await departmentService.getDepartmentById(req.params.id.toString());
     res.status(200).json(formatResponse(
       'success',
