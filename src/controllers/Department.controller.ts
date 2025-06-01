@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { DepartmentService } from '../services';
 import { formatResponse } from '../utils/response.util';
 import Department from '../models/Department.model';
+import { DepartmentMessages } from '../constants/messages';
 
 const departmentService = new DepartmentService();
 
@@ -36,7 +37,7 @@ export const getAllDepartments = async (req: Request, res: Response) => {
     return res.status(200).json(
       formatResponse(
         'success',
-        'Lấy danh sách phòng ban thành công',
+        DepartmentMessages.GET_ALL_DEPARTMENTS,
         result.departments,
         undefined,
         result.pagination
@@ -76,7 +77,7 @@ export const search = async (req: Request, res: Response) => {
     res.status(200).json(
       formatResponse(
         'success',
-        'Tìm kiếm phòng ban thành công',
+        DepartmentMessages.SEARCH_DEPARTMENT,
         result.departments,
         undefined,
         result.pagination
@@ -114,7 +115,7 @@ export const getDetailDepartment = async(req: Request, res: Response) => {
     const department = await departmentService.getDepartmentById(req.params.id.toString());
     res.status(200).json(formatResponse(
       'success',
-      'Lấy thông tin phòng ban thành công',
+      DepartmentMessages.GET_DETAIL_DEPARTMENT,
       department
     ))
   } catch (error) {
@@ -145,7 +146,7 @@ export const createDepartment = async(req: Request, res: Response) => {
       res.status(500).json(
         formatResponse(
           'error',
-          'Phòng ban đã tồn tại trong hệ thống'
+          DepartmentMessages.DEPARTMENT_EXITS
         )
       )
     }
@@ -155,7 +156,7 @@ export const createDepartment = async(req: Request, res: Response) => {
     res.status(201).json(
       formatResponse(
         'success',
-        'Tạo mới phòng ban thành công',
+        DepartmentMessages.CREATE_SUCCESSFULLY,
         department
       )
     )
@@ -183,7 +184,7 @@ export const updateDepartment = async(req: Request, res: Response) => {
       res.status(500).json(
         formatResponse(
           'error',
-          'Phòng ban không tồn tại trong hệ thống'
+          DepartmentMessages.NOT_FOUND
         )
       );
     };
@@ -196,7 +197,7 @@ export const updateDepartment = async(req: Request, res: Response) => {
     res.status(200).json(
       formatResponse(
         'success',
-        'Cập nhật thông tin phòng ban thành công',
+        DepartmentMessages.UPDATE_SUCCESSFULLY,
         department
       )
     );
@@ -223,7 +224,7 @@ export const deleteDepartment = async(req: Request, res: Response) => {
       res.status(500).json(
         formatResponse(
           'error',
-          'Phòng ban không tồn tại trong hệ thống'
+          DepartmentMessages.NOT_FOUND
         )
       );
     };
@@ -232,7 +233,7 @@ export const deleteDepartment = async(req: Request, res: Response) => {
     res.status(200).json(
       formatResponse(
         'success',
-        'Xóa phòng ban thành công'
+        DepartmentMessages.DELETE_SUCCESSFULLY
       )
     );
   } catch (error) {

@@ -1,0 +1,27 @@
+export enum DepartmentMessages {
+  CREATE_SUCCESSFULLY = 'Tạo mới phòng ban thành công',
+  UPDATE_SUCCESSFULLY = 'Cập nhật thông tin phòng ban thành công',
+  DELETE_SUCCESSFULLY = 'Xóa phòng ban thành công',
+  NOT_FOUND = 'Phòng ban không tồn tại trong hệ thống',
+  GET_ALL_DEPARTMENTS = 'Lấy danh sách phòng ban thành công',
+  SEARCH_DEPARTMENT = 'Tìm kiếm phòng ban thành công',
+  GET_DETAIL_DEPARTMENT = 'Lấy thông tin phòng ban thành công',
+  DEPARTMENT_EXITS = 'Phòng ban đã tồn tại trong hệ thống'
+}
+
+export enum UserMessages {
+  REGISTER_SUCCESSFULLY = 'Đăng ký tài khoản thành công',
+  LOGIN_SUCCESSFULLY = 'Đăng nhập thành công',
+  AUTH_ERROR = 'Unauthorized',
+  GET_CURRENT_USER_SUCCESSFULLY = 'Lấy thông tin người dùng thành công',
+  ALLOW_FIELDS_NAME_OR_PASSS_UPDATE = 'Chỉ được cập nhật name hoặc password',
+  UPDATE_SUCCESSFULLY = 'Cập nhật thông tin người dùng thành công',
+  USER_NOT_FOUND = 'Người dùng không tồn tại',
+  USER_UPDATE_STATUS_SUCCESSFULLY = 'Cập nhật trạng thái người dùng thành công',
+  GET_USERS_SUCCESSFULLY = 'Lấy danh sách người dùng thành công',
+  SEARCH_USER_SUCCESSFULLY = 'Tìm kiếm người dùng thành công',
+  USER_CHOOSE_AVT = 'Vui lòng chọn ảnh đại diện',
+  USER_UPDATE_AVT_SUCCESSFULLY = 'Cập nhật ảnh đại diện thành công',
+  PASSWORD_INCORRECT = 'Mật khẩu cũ không chính xác',
+  UPDATE_PASSWORD_SUCCESSFULLY = 'Cập nhật mật khẩu thành công. Vui lòng đăng nhập lại'
+}

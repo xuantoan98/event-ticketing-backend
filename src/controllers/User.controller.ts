@@ -3,6 +3,7 @@ import { UserService } from '../services';
 import { validationResult } from 'express-validator';
 import { formatResponse } from '../utils/response.util';
 import { IUserDocument } from '../interfaces/User.interface';
+import { UserMessages } from '../constants/messages';
 
 const userService = new UserService();
 
@@ -27,16 +28,16 @@ export const register = async (
     res.status(201).json(
       formatResponse(
         'success',
-        'Đăng ký tài khoản thành công',
+        UserMessages.REGISTER_SUCCESSFULLY,
         user,
         token
       )
     )
   } catch (error: any) {
-    res.status(400).json(
+    res.status(500).json(
       formatResponse(
         'error',
-        error.message
+        `Xảy ra lỗi: ${error}`
       )
     )
   }
@@ -54,7 +55,7 @@ export const login = async(
     res.status(200).json(
       formatResponse(
         'success',
-        'Đăng nhập thành công',
+        UserMessages.LOGIN_SUCCESSFULLY,
         {
           user: user,
           token
@@ -62,10 +63,10 @@ export const login = async(
       )
     )
   } catch (error: any) {
-    res.status(401).json(
+    res.status(500).json(
       formatResponse(
         'error',
-        error.message
+        `Xảy ra lỗi: ${error}`
       )
     )
   }
@@ -80,7 +81,7 @@ export const getCurrentUser = async(
       res.status(401).json(
         formatResponse(
           'error',
-          'Unauthorized'
+          UserMessages.AUTH_ERROR
         )
       )
     }
@@ -89,7 +90,7 @@ export const getCurrentUser = async(
     res.status(200).json(
       formatResponse(
         'success',
-        'Lấy thông tin người dùng thành công',
+        UserMessages.GET_CURRENT_USER_SUCCESSFULLY,
         user
       )
     )
@@ -97,7 +98,7 @@ export const getCurrentUser = async(
     res.status(500).json(
       formatResponse(
         'error',
-        'Lỗi hệ thống'
+        `Lỗi hệ thống: ${error}`
       )
     )
   }
@@ -112,7 +113,7 @@ export const updateUser = async(
       res.status(401).json(
         formatResponse(
           'error',
-          'Unauthorized'
+          UserMessages.AUTH_ERROR
         )
       )
     }
@@ -130,7 +131,7 @@ export const updateUser = async(
       res.status(400).json(
         formatResponse(
           'error',
-          'Chỉ được cập nhật name hoặc password'
+          UserMessages.ALLOW_FIELDS_NAME_OR_PASSS_UPDATE
         )
       )
     }
@@ -144,15 +145,15 @@ export const updateUser = async(
     res.status(200).json(
       formatResponse(
         'success',
-        'Cập nhật thông tin người dùng thành công',
+        UserMessages.UPDATE_SUCCESSFULLY,
         user
       )
     )
   } catch (error: any) {
-    res.status(400).json(
+    res.status(500).json(
       formatResponse(
         'error',
-        error.message
+        `Xảy ra lỗi: ${error}`
       )
     )
   }
@@ -168,21 +169,21 @@ export const deleteUser = async(
       res.status(404).json(
         formatResponse(
           'error',
-          'Người dùng không tồn tại'
+          UserMessages.USER_NOT_FOUND
         )
       )
     }
     res.status(200).json(
       formatResponse(
         'success',
-        'Cập nhật trạng thái người dùng thành công'
+        UserMessages.USER_UPDATE_STATUS_SUCCESSFULLY
       )
     )
   } catch (error: any) {
-    res.status(400).json(
+    res.status(500).json(
       formatResponse(
         'error',
-        error.message
+        `Xảy ra lỗi: ${error}`
       )
     )
   }
@@ -214,7 +215,7 @@ export const getUsers = async(
     res.status(200).json(
       formatResponse(
         'success',
-        'Lấy danh sách người dùng thành công',
+        UserMessages.GET_USERS_SUCCESSFULLY,
         result.data,
         undefined,
         result.pagination
@@ -224,7 +225,7 @@ export const getUsers = async(
     res.status(500).json(
       formatResponse(
         'error',
-        'Lỗi hệ thống'
+        `Xảy ra lỗi: ${error}`
       )
     )
   }
@@ -249,7 +250,7 @@ export const searchUsers = async(
     res.status(200).json(
       formatResponse(
         'success',
-        'Tìm kiếm người dùng thành công',
+        UserMessages.SEARCH_USER_SUCCESSFULLY,
         result.data,
         undefined,
         result.pagination
@@ -259,7 +260,7 @@ export const searchUsers = async(
     res.status(500).json(
       formatResponse(
         'error',
-        'Lỗi hệ thống'
+        `Xảy ra lỗi: ${error}`
       )
     )
   }
@@ -283,7 +284,7 @@ export const updateAvatar = async(
       return res.status(500).json(
         formatResponse(
           'error',
-          'Vui lòng chọn ảnh đại diện'
+          UserMessages.USER_CHOOSE_AVT
         )
       )
     }
@@ -298,15 +299,15 @@ export const updateAvatar = async(
     res.status(200).json(
       formatResponse(
         'success',
-        'Cập nhật ảnh đại diện thành công',
+        UserMessages.USER_UPDATE_AVT_SUCCESSFULLY,
         user
       )
     )
   } catch (error: any){
-    res.status(400).json(
+    res.status(500).json(
       formatResponse(
         'error',
-        error
+        `Xảy ra lỗi: ${error}`
       )
     )
   }
@@ -333,7 +334,7 @@ export const changePassword = async(
       return res.status(500).json(
         formatResponse(
           'error',
-          'Mật khẩu cũ không chính xác'
+          UserMessages.PASSWORD_INCORRECT
         )
       )
     }
@@ -342,17 +343,17 @@ export const changePassword = async(
     res.status(200).json(
       formatResponse(
         'success',
-        'Cập nhật mật khẩu thành công. Vui lòng đăng nhập lại',
+        UserMessages.UPDATE_PASSWORD_SUCCESSFULLY,
         user
       )
     )
 
   } catch (error: any) {
-    res.status(400).json(
+    res.status(500).json(
       formatResponse(
         'error',
-        error
+        `Xảy ra lỗi: ${error}`
       )
-    )
+    );
   }
 }
