@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, Types, model } from "mongoose";
 import bcrypt from "bcrypt";
 import { IUserDocument, IUserResponse } from "../interfaces/User.interface";
 import jwt from 'jsonwebtoken';
@@ -40,6 +40,11 @@ const userSchema = new Schema<IUserDocument> (
 		refreshTokens: {
 			type: [String],
 			select: false // Not return in response
+		},
+		departmentId: {
+			type: Schema.Types.ObjectId,
+			ref: 'Department',
+			required: true
 		}
 	},
 	{

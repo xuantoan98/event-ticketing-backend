@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Schema } from "mongoose";
 import { Gender } from "../constants/enum";
 export interface IUserDocument extends Document {
   _id: string;
@@ -19,6 +19,7 @@ export interface IUserDocument extends Document {
   toResponse(): IUserResponse;
   generateAuthToken(): string;
   refreshTokens: string[];
+  departmentId: Schema.Types.ObjectId;
 }
 
 export interface IUserResponse {

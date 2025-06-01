@@ -3,6 +3,7 @@ import User from "../models/User.model";
 import { IUserResponse, IUserDocument } from "../interfaces/User.interface";
 import mongoose, { Types } from "mongoose";
 import { PaginationOptions, PaginationResult } from "../interfaces/common/pagination.interface";
+import Department from "../models/Department.model";
 require('dotenv').config();
 
 export class UserService {
@@ -13,6 +14,11 @@ export class UserService {
 
     if(userExist) {
       throw new Error('Email đã tồn tại')
+    }
+
+    if(userData.departmentId) {
+      const checkDepartment = await Department.findById(userData.departmentId);
+      if(!checkDepartment) throw new Error('Phòng ban không tồn tại');
     }
 
     const user = await User.create(userData)
@@ -71,6 +77,11 @@ export class UserService {
         obj[key] = (updateData as any)[key]
         return obj
       }, {} as any)
+
+    if(updateData.departmentId) {
+      const checkDepartment = await Department.findById(updateData.departmentId);
+      if(!checkDepartment) throw new Error('Phòng ban không tồn tại');
+    }
 
     const user = await User.findByIdAndUpdate(
       userId,
