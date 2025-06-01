@@ -12,17 +12,17 @@ export interface IEvent {
   status: EventStatus;
   ticketsId?: Schema.Types.ObjectId[];
 
-  isLimitSeat?: EventLimitSeat;  // giới hạn chỗ ngồi
-  totalSeats?: Number;           // Tổng số chỗ ngồi
-  totalCustomerInvites?: Number; // Tổng số khách mời
-  totalSupports?: Number;        // Tổng số nhân viên hỗ trợ
-  totalDetails?: Number;         // Tổng số lượng record mô tả sự kiện
-  totalCosts?: Number;           // Tổng số lượng record mô tả chi phí 
-  totalFeedbacks?: Number;       // Tổng số lượng phản hồi của sự kiện
-  estimatePrice: Number;        // Chi phí dự kiến
-  realPrice?: Number;            // Chi phí thực tế
+  isLimitSeat?: EventLimitSeat;   // giới hạn chỗ ngồi
+  totalSeats?: Number;            // Tổng số chỗ ngồi
+  totalCustomerInvites?: Number;  // Tổng số khách mời
+  totalSupports?: Number;         // Tổng số nhân viên hỗ trợ
+  totalDetails?: Number;          // Tổng số lượng record mô tả sự kiện
+  totalCosts?: Number;            // Tổng số lượng record mô tả chi phí 
+  totalFeedbacks?: Number;        // Tổng số lượng phản hồi của sự kiện
+  estimatePrice: Number;          // Chi phí dự kiến
+  realPrice?: Number;             // Chi phí thực tế
   createdAt: Date;
   updateAt: Date;
 
-  eventCategoriesId: Schema.Types.ObjectId;
+  eventCategoriesId: Schema.Types.ObjectId[];
 }
