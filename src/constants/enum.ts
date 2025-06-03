@@ -19,7 +19,8 @@ export enum EventStatus {
   CREATE = 'create',
   PROCESS = 'process',
   END = 'end',
-  CLOSED = 'closed'
+  CLOSED = 'closed',
+  CANCELLED = 'cancelled'
 }
 
 export enum EventLimitSeat {

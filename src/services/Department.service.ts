@@ -27,7 +27,7 @@ export class DepartmentService {
       departmentId,
       departmentUpdate,
       { new: true, runValidators: true }
-    );
+    ).exec();
 
     if(!department) {
       throw new Error('Phòng ban không tồn tại trong hệ thống');

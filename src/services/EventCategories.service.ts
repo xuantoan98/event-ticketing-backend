@@ -26,7 +26,7 @@ export class EventCategoriesService {
       eventCatId,
       eventCatUpdate,
       { new: true, runValidators: true }
-    );
+    ).exec();
 
     if(!eventCat) {
       throw new Error('Danh mục sự kiện không tồn tại trong hệ thống');
