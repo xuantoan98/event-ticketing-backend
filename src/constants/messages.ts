@@ -36,3 +36,9 @@ export enum EventCategoriesMessages {
   UPDATED = 'Cập nhật danh mục sự kiện thành công',
   DELETED = 'Xóa danh mục sự kiện thành công'
 }
+
+export enum EventMessages {
+  CREATED = 'Thêm mới sự kiện thành công',
+  NOT_FOUND = 'Không tìm thấy sự kiện',
+  UPDATED = 'Cập nhật thông tin sự kiện thành công'
+}

@@ -55,7 +55,12 @@ const eventSchema = new Schema<IEvent>({
   totalCosts: Number,
   totalFeedbacks: Number,
   estimatePrice: Number,
-  realPrice: Number
+  realPrice: Number,
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    require: true
+  }
 }, {
   timestamps: true 
 });

@@ -23,6 +23,7 @@ export interface IEvent {
   realPrice?: Number;             // Chi phí thực tế
   createdAt: Date;
   updateAt: Date;
+  createdBy: Schema.Types.ObjectId;
 
   eventCategoriesId: Schema.Types.ObjectId[];
 }

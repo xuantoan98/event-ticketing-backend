@@ -5,7 +5,7 @@ export interface IUserDocument extends Document {
   name: string;
   email: string;
   password: string;
-  role: 'admin' | 'organizer' | 'customer';
+  role: string;
   status: number;
   dateOfBirth?: Date;
   avatar?: string;
