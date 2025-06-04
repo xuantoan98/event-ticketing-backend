@@ -37,8 +37,17 @@ export enum EventCategoriesMessages {
   DELETED = 'Xóa danh mục sự kiện thành công'
 }
 
+export enum AuthMessages {
+  FORBIDDEN = 'Forbidden'
+}
+
 export enum EventMessages {
   CREATED = 'Thêm mới sự kiện thành công',
   NOT_FOUND = 'Không tìm thấy sự kiện',
-  UPDATED = 'Cập nhật thông tin sự kiện thành công'
+  UPDATED = 'Cập nhật thông tin sự kiện thành công',
+  ID_NOT_VALID = 'ID sự kiện không hợp lệ',
+  GET_DETAIL_EVENT_SUCCESSFULLY = 'Lấy chi tiết thông tin sự kiện thành công',
+  GET_ALL_EVENT_SUCCESSFULLY = 'Lấy danh sách sự kiện thành công',
+  CANCELL_EVENT_SUCCESSFULLY = 'Đổi trạng thái sự kiện thành công',
+  
 }
