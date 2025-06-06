@@ -49,5 +49,5 @@ export enum EventMessages {
   GET_DETAIL_EVENT_SUCCESSFULLY = 'Lấy chi tiết thông tin sự kiện thành công',
   GET_ALL_EVENT_SUCCESSFULLY = 'Lấy danh sách sự kiện thành công',
   CANCELL_EVENT_SUCCESSFULLY = 'Đổi trạng thái sự kiện thành công',
-  
+  ARRAY_ID_CATEGORIES_INVALID = 'Danh sách ID danh mục không hợp lệ'
 }

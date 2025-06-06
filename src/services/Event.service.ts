@@ -121,6 +121,38 @@ export class EventService {
     }
   }
 
+  async search(query: string, options: PaginationOptions) {
+    const { page, limit, sortBy, sortOrder } = options;
+    const skip = (page - 1) * limit;
+    const sortField = sortBy as keyof IEvent;
+    const sort: Record<string, 1 | -1> = {
+      [sortField]: sortOrder === 'asc' ? 1 : -1
+    };
+
+    const searchRegex = new RegExp(query, 'i');
+    const [events, total] = await Promise.all([
+      EventModel.find({
+        title: searchRegex
+      })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .exec(),
+      EventModel.countDocuments()
+    ]);
+
+    return {
+      events,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    }
+  }
+
   async cancelEvent(eventId: string) {
     if(Types.ObjectId.isValid(eventId.toString())) {
       throw new Error('ID sự kiện không hợp lệ');

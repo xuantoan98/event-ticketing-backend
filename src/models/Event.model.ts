@@ -32,7 +32,10 @@ const eventSchema = new Schema<IEvent>({
     type: String,
     required: true
   },
-  coverImage: String,
+  coverImage: {
+    type: String,
+    default: 'https://via.placeholder.com/600x400'
+  },
   status: {
     type: String,
     enum: Object.values(EventStatus),
