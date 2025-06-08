@@ -51,3 +51,14 @@ export enum EventMessages {
   CANCELL_EVENT_SUCCESSFULLY = 'Đổi trạng thái sự kiện thành công',
   ARRAY_ID_CATEGORIES_INVALID = 'Danh sách ID danh mục không hợp lệ'
 }
+
+export enum InviteMessages {
+  CREATE_SUCCESSFULLY = 'Tạo mới thông tin khách mời thành công',
+  UPDATE_SUCCESSFULLY = 'Cập nhật thông tin khách mời thành công',
+  DELETE_SUCCESSFULLY = 'Xóa thông tin khách hàng thành công',
+  NOT_FOUND = 'Thông tin khách mời không tồn tại trong hệ thống',
+  GET_ALL_INVITES = 'Lấy danh sách khách mời thành công',
+  SEARCH_INVITE = 'Tìm kiếm Khách mời thành công',
+  GET_DETAIL_INVITE = 'Lấy thông tin khách mời thành công',
+  INVITE_EXITS = 'Khách mời đã tồn tại trong hệ thống'
+}
