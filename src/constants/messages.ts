@@ -62,3 +62,14 @@ export enum InviteMessages {
   GET_DETAIL_INVITE = 'Lấy thông tin khách mời thành công',
   INVITE_EXITS = 'Khách mời đã tồn tại trong hệ thống'
 }
+
+export enum EventInviteMessages {
+  CREATE_SUCCESSFULLY = 'Tạo mới thông tin khách mời sự kiện thành công',
+  UPDATE_SUCCESSFULLY = 'Cập nhật thông tin khách mời sự kiện thành công',
+  DELETE_SUCCESSFULLY = 'Xóa thông tin khách mời sự kiện thành công',
+  NOT_FOUND = 'Thông tin khách mời sự kiện không tồn tại trong hệ thống',
+  GET_ALL_EVENT_INVITES = 'Lấy danh sách khách mời sự kiện thành công',
+  SEARCH_EVENT_INVITE = 'Tìm kiếm Khách mời sự kiện thành công',
+  GET_DETAIL_EVENT_INVITE = 'Lấy thông tin khách mời sự kiện thành công',
+  EVENT_INVITE_EXITS = 'Khách mời sự kiện đã tồn tại trong hệ thống'
+}

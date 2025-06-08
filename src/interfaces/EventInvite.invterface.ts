@@ -1,13 +1,10 @@
 import { Schema } from "mongoose";
 
-export interface IInvites {
+export interface IEventInvite {
   _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  fax: string;
-  organization: string;
-  createdAt: Date;
+  inviteId: Schema.Types.ObjectId[];
+  eventId: Schema.Types.ObjectId;
+  note: string;
   updatedAt: Date;
   status: Number;
   createdBy: Schema.Types.ObjectId;

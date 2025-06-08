@@ -5,6 +5,7 @@ import departmentRouter from "./Department.routes";
 import eventRouter from "./Event.route";
 import eventCategoriesRouter from "./EventCategories.routes";
 import inviteRouter from "./Invite.routes";
+import eventInviteRouter from "./EventInvite.routes";
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use('/departments', departmentRouter);
 router.use('/events', eventRouter);
 router.use('/event-catogories', eventCategoriesRouter);
 router.use('/invite', inviteRouter);
+router.use('/event-invite', eventInviteRouter);
 
 export default router;
