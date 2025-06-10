@@ -6,3 +6,4 @@ export * as eventController from "./Event.controller";
 export * as inviteController from "./Invite.controller";
 export * as eventInviteController from "./EventInvite.controller";
 export * as eventSupportController from "./EventSupport.controller";
+export * as eventDetailController from "./EventDetail.controller";

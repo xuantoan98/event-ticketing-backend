@@ -7,6 +7,7 @@ import eventCategoriesRouter from "./EventCategories.routes";
 import inviteRouter from "./Invite.routes";
 import eventInviteRouter from "./EventInvite.routes";
 import eventSupportRouter from "./EventSupport.routes";
+import eventDetailRouter from "./EventDetail.routes";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/event-catogories', eventCategoriesRouter);
 router.use('/invite', inviteRouter);
 router.use('/event-invite', eventInviteRouter);
 router.use('/event-support', eventSupportRouter);
+router.use('/event-detail', eventDetailRouter);
 
 export default router;
