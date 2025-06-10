@@ -4,3 +4,4 @@ export * from "./Department.service";
 export * from "./Event.service";
 export * from "./Invite.service";
 export * from "./EventInvite.service";
+export * from "./EventSupport.service";

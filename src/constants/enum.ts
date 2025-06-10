@@ -27,3 +27,8 @@ export enum EventLimitSeat {
   NO_LIMIT = 0,
   LIMIT = 1
 }
+
+export enum EventSupportAcceptStatus {
+  ACCEPT = 1,
+  NO_ACCPET = 0
+}
