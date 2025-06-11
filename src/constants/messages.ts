@@ -100,3 +100,12 @@ export enum EventCostMessages {
   GET_DETAIL_EVENT_COST = 'Lấy thông tin chi tiết chi phí thành công',
   GET_ALL_EVENT_COST_DETAIL = 'Lấy danh sách chi phí thành công'
 }
+
+export enum FeedbackMessages {
+  CREATE_SUCCESSFULLY = 'Tạo mới phản hồi thành công',
+  UPDATE_SUCCESSFULLY = 'Cập nhật thông tin phản hồi thành công',
+  DELETE_SUCCESSFULLY = 'Xóa thông tin phản hồi thành công',
+  NOT_FOUND = 'Thông tin phản hồi không tồn tại trong hệ thống',
+  GET_DETAIL_EVENT_FEEDBACK = 'Lấy thông tin phản hồi thành công',
+  GET_ALL_EVENT_FEEDBACK = 'Lấy danh sách phản hồi thành công'
+}

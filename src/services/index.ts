@@ -7,3 +7,4 @@ export * from "./EventInvite.service";
 export * from "./EventSupport.service";
 export * from "./EventDetail.service";
 export * from "./EventCost.service";
+export * from "./Feedback.service";
