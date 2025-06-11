@@ -32,3 +32,8 @@ export enum EventSupportAcceptStatus {
   ACCEPT = 1,
   NO_ACCPET = 0
 }
+
+export enum EventCostType {
+  IN_COME = 1,
+  EXPENSES = 0
+}

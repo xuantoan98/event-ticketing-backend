@@ -23,7 +23,7 @@ const eventDetailSchema = new Schema<IEventDetail>({
     enum: Status,
     default: Status.ACTIVE
   }
-});
+}, { timestamps: true });
 
 const EventDetail = model<IEventDetail>('EventDetail', eventDetailSchema);
 export default EventDetail;

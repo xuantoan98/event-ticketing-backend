@@ -36,7 +36,7 @@ const eventSupportSchema = new Schema<IEventSupport>({
     ref: 'User',
     require: true
   }
-});
+}, { timestamps: true });
 
 const EventSupport = model<IEventSupport>('EventSupport', eventSupportSchema);
 export default EventSupport;

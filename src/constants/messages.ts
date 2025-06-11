@@ -91,3 +91,12 @@ export enum EventDetailMessages {
   GET_DETAIL_EVENT_DETAIL = 'Lấy thông tin chi tiết sự kiện thành công',
   GET_ALL_EVENT_DETAIL = 'Lấy danh sách chi tiết sự kiện thành công'
 }
+
+export enum EventCostMessages {
+  CREATE_SUCCESSFULLY = 'Tạo mới thông tin chi phí thành công',
+  UPDATE_SUCCESSFULLY = 'Cập nhật thông tin chi phí thành công',
+  DELETE_SUCCESSFULLY = 'Xóa thông tin chi phí thành công',
+  NOT_FOUND = 'Thông tin chi tiết chi phí không tồn tại trong hệ thống',
+  GET_DETAIL_EVENT_COST = 'Lấy thông tin chi tiết chi phí thành công',
+  GET_ALL_EVENT_COST_DETAIL = 'Lấy danh sách chi phí thành công'
+}
