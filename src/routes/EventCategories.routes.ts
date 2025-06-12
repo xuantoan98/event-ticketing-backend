@@ -6,7 +6,7 @@ import { authMiddleware } from "../middlewares";
 const router = Router();
 
 router.get('/', authMiddleware, eventCategoriesController.getAllEventCategories);
-router.get('/search', authMiddleware, eventCategoriesValidator('search'), eventCategoriesController.search);
+// router.get('/search', authMiddleware, eventCategoriesValidator('search'), eventCategoriesController.search);
 router.get('/:id', eventCategoriesController.getDetailEventCategories);
 
 router.post('/', authMiddleware, eventCategoriesValidator('create'), eventCategoriesController.createEventCategories);

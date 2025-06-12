@@ -1,3 +1,4 @@
+import { Schema } from "mongoose";
 import { Status } from "../constants/enum";
 
 export interface IEventCategories {
@@ -7,4 +8,6 @@ export interface IEventCategories {
   status: Status;
   createdAt: Date;
   updatedAt: Date;
+  createdBy: Schema.Types.ObjectId;
+  updatedBy: Schema.Types.ObjectId;
 }

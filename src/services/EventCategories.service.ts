@@ -56,21 +56,26 @@ export class EventCategoriesService {
     return EventCategoriesModel.findById(eventCatId);
   };
 
-  async getEventCategories(options: PaginationOptions) {
+  async getEventCategories(query: string, options: PaginationOptions) {
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;
     const sortField = sortBy as keyof IEventCategories;
     const sort: Record<string, 1 | -1> = {
       [sortField]: sortOrder === 'asc' ? 1 : -1
     };
+    let filter = {};
+    if (query) {
+      const searchRegex = new RegExp(query, 'i');
+      filter = { name: { $regex: searchRegex } }
+    }
 
     const [eventCats, total] = await Promise.all([
-      EventCategoriesModel.find()
+      EventCategoriesModel.find(filter)
         .sort(sort)
         .skip(skip)
         .limit(limit)
         .lean(),
-      EventCategoriesModel.countDocuments()
+      EventCategoriesModel.countDocuments(filter)
     ])
 
     return {
@@ -84,39 +89,39 @@ export class EventCategoriesService {
     }
   };
 
-  async search(query: string, options: PaginationOptions) {
-    const { page, limit, sortBy, sortOrder } = options;
-    const skip = (page - 1) * limit;
-    const sortField = sortBy as keyof IEventCategories;
-    const sort: Record<string, 1 | -1> = {
-      [sortField]: sortOrder === 'asc' ? 1 : -1
-    };
-    const searchRegex = new RegExp(query, 'i');
+  // async search(query: string, options: PaginationOptions) {
+  //   const { page, limit, sortBy, sortOrder } = options;
+  //   const skip = (page - 1) * limit;
+  //   const sortField = sortBy as keyof IEventCategories;
+  //   const sort: Record<string, 1 | -1> = {
+  //     [sortField]: sortOrder === 'asc' ? 1 : -1
+  //   };
+  //   const searchRegex = new RegExp(query, 'i');
 
-    const [eventCats, total] = await Promise.all([
-      EventCategoriesModel.find({
-        $or: [
-          { name: { $regex: searchRegex } }
-        ]})
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      EventCategoriesModel.countDocuments({
-        $or: [
-          { name: { $regex: searchRegex } }
-        ]
-      })
-    ])
+  //   const [eventCats, total] = await Promise.all([
+  //     EventCategoriesModel.find({
+  //       $or: [
+  //         { name: { $regex: searchRegex } }
+  //       ]})
+  //       .sort(sort)
+  //       .skip(skip)
+  //       .limit(limit)
+  //       .lean(),
+  //     EventCategoriesModel.countDocuments({
+  //       $or: [
+  //         { name: { $regex: searchRegex } }
+  //       ]
+  //     })
+  //   ])
 
-    return {
-      eventCats,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
-      }
-    }
-  };
+  //   return {
+  //     eventCats,
+  //     pagination: {
+  //       total,
+  //       page,
+  //       limit,
+  //       totalPages: Math.ceil(total / limit)
+  //     }
+  //   }
+  // };
 }
