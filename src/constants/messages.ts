@@ -38,7 +38,9 @@ export enum EventCategoriesMessages {
 }
 
 export enum AuthMessages {
-  FORBIDDEN = 'Forbidden'
+  FORBIDDEN = 'Forbidden',
+  UNAUTHORIZED = 'Unauthorized',
+  PERMISSION_DENIED = 'Permission denied'
 }
 
 export enum EventMessages {

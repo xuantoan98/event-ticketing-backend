@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import { IEventCost } from "../interfaces/EventCost.interface";
-import Event from "../models/Event.model";
 import EventCost from "../models/EventCost.model";
 import { EventService } from "./Event.service";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
@@ -66,15 +65,25 @@ export class EventCostService {
       [sortField]: sortOrder === 'asc' ? 1 : -1
     };
 
-    const quertRegex = new RegExp(query, 'i');
+    let filter = {};
+    if (query) {
+      const queryRegex = new RegExp(query, 'i');
+      filter = {
+        $or: [
+          { 'events.title': { $regex: queryRegex } }
+        ]
+      }
+    }
+
     const [eventCosts, total] = await Promise.all([
-      EventCost.find()
+      EventCost.find(filter)
+      .populate('events')
       .limit(limit)
       .skip(skip)
       .sort(sort)
       .lean()
       .exec(),
-      EventCost.countDocuments()
+      EventCost.countDocuments(filter)
     ]);
 
     return {

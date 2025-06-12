@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { formatResponse } from "../utils/response.util";
 import { IEventCost } from "../interfaces/EventCost.interface";
 import { EventCostService } from "../services";
-import { EventCostMessages } from "../constants/messages";
+import { AuthMessages, EventCostMessages } from "../constants/messages";
 
 const eventCostService = new EventCostService();
 
@@ -15,6 +15,16 @@ const eventCostService = new EventCostService();
  */
 export const createEventCost = async (req: Request, res: Response) => {
   try {
+    const currentUser = req.user;
+    if (!currentUser) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.UNAUTHORIZED
+        )
+      );
+    }
+    
     const dataCreate = {
       ...req.body,
       createdBy: req.user?._id
@@ -47,6 +57,35 @@ export const createEventCost = async (req: Request, res: Response) => {
  */
 export const updateEventCost = async (req: Request, res: Response) => {
   try {
+    const currentUser = req.user;
+    if (!currentUser) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.UNAUTHORIZED
+        )
+      );
+    }
+
+    const eventCost = await eventCostService.getEventCost(req.params.id);
+    if (!eventCost) {
+      return res.status(400).json(
+        formatResponse(
+          'error',
+          EventCostMessages.NOT_FOUND
+        )
+      );
+    }
+
+    if (eventCost.createdBy.toString() !== currentUser._id.toString()) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.PERMISSION_DENIED
+        )
+      );
+    }
+
     const dataUpdate = {
       ...req.body,
       updatedBy: req.user?._id
@@ -61,7 +100,7 @@ export const updateEventCost = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    res.status(500).json(
+    return res.status(500).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -79,6 +118,35 @@ export const updateEventCost = async (req: Request, res: Response) => {
  */
 export const deleteEventCost = async (req: Request, res: Response) => {
   try {
+    const currentUser = req.user;
+    if (!currentUser) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.UNAUTHORIZED
+        )
+      );
+    }
+
+    const eventCost = await eventCostService.getEventCost(req.params.id);
+    if (!eventCost) {
+      return res.status(400).json(
+        formatResponse(
+          'error',
+          EventCostMessages.NOT_FOUND
+        )
+      );
+    }
+
+    if (eventCost.createdBy.toString() !== currentUser._id.toString()) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.PERMISSION_DENIED
+        )
+      );
+    }
+
     const result = await eventCostService.delete(req.params.id);
     return res.status(200).json(
       formatResponse(
@@ -105,7 +173,26 @@ export const deleteEventCost = async (req: Request, res: Response) => {
  */
 export const getEventCost = async (req: Request, res: Response) => {
   try {
+    const currentUser = req.user;
+    if (!currentUser) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.UNAUTHORIZED
+        )
+      );
+    }
+
     const result = await eventCostService.getEventCost(req.params.id);
+    if (!result) {
+      return res.status(400).json(
+        formatResponse(
+          'error',
+          EventCostMessages.NOT_FOUND
+        )
+      );
+    }
+
     return res.status(200).json(
       formatResponse(
         'success',
@@ -114,7 +201,7 @@ export const getEventCost = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    res.status(500).json(
+    return res.status(500).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -163,7 +250,7 @@ export const getEventCosts = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    res.status(500).json(
+    return res.status(500).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
