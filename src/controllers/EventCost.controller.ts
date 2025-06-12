@@ -6,6 +6,13 @@ import { EventCostMessages } from "../constants/messages";
 
 const eventCostService = new EventCostService();
 
+/**
+ * Create cost event
+ * 
+ * @param req 
+ * @param res 
+ * @returns new cost event
+ */
 export const createEventCost = async (req: Request, res: Response) => {
   try {
     const dataCreate = {
@@ -31,6 +38,13 @@ export const createEventCost = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Update cost event
+ * 
+ * @param req 
+ * @param res 
+ * @returns cost event update
+ */
 export const updateEventCost = async (req: Request, res: Response) => {
   try {
     const dataUpdate = {
@@ -56,6 +70,13 @@ export const updateEventCost = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Delete cost event
+ * 
+ * @param req 
+ * @param res 
+ * @returns boolean
+ */
 export const deleteEventCost = async (req: Request, res: Response) => {
   try {
     const result = await eventCostService.delete(req.params.id);
@@ -75,7 +96,13 @@ export const deleteEventCost = async (req: Request, res: Response) => {
     );
   }
 }
-
+/**
+ * Get detail cost event
+ * 
+ * @param req 
+ * @param res 
+ * @returns detail cost event
+ */
 export const getEventCost = async (req: Request, res: Response) => {
   try {
     const result = await eventCostService.getEventCost(req.params.id);
@@ -96,6 +123,13 @@ export const getEventCost = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Get list costs event
+ * 
+ * @param req 
+ * @param res 
+ * @returns list costs event
+ */
 export const getEventCosts = async (req: Request, res: Response) => {
   try {
     const {
