@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Status } from "../constants/enum"
 
 export interface IDepartments {
@@ -9,4 +10,6 @@ export interface IDepartments {
   status: Status;
   createdAt: Date;
   updatedAt: Date;
+  createdBy: Types.ObjectId;
+  updatedBy: Types.ObjectId;
 }

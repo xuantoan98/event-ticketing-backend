@@ -17,6 +17,16 @@ const departmentSchema = new Schema<IDepartments> (
       type: Number,
       enum: Status,
       default: Status.ACTIVE
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      require: true
+    },
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      require: true
     }
   },
   {

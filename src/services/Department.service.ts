@@ -14,7 +14,7 @@ export class DepartmentService {
       throw new Error('Phòng ban đã tồn tại');
     }
 
-    const department = DepartmentModel.create(departmentData);
+    const department = await DepartmentModel.create(departmentData);
     return department;
   }
 
@@ -23,7 +23,7 @@ export class DepartmentService {
       throw new Error('ID phòng ban không đúng');
     }
 
-    const department = DepartmentModel.findByIdAndUpdate(
+    const department = await DepartmentModel.findByIdAndUpdate(
       departmentId,
       departmentUpdate,
       { new: true, runValidators: true }
@@ -54,10 +54,10 @@ export class DepartmentService {
       throw new Error('ID phòng ban không đúng');
     }
 
-    return DepartmentModel.findById(departmentId);
+    return await DepartmentModel.findById(departmentId);
   }
 
-  async getDepartments(options: PaginationOptions) {
+  async getDepartments(query: string, options: PaginationOptions) {
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;
     const sortField = sortBy as keyof IDepartments;
@@ -65,51 +65,24 @@ export class DepartmentService {
       [sortField]: sortOrder === 'asc' ? 1 : -1
     };
 
-    const [departments, total] = await Promise.all([
-      DepartmentModel.find()
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      DepartmentModel.countDocuments()
-    ])
-
-    return {
-      departments,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
-      }
-    }
-  }
-
-  async search(query: string, options: PaginationOptions) {
-    const { page, limit, sortBy, sortOrder } = options;
-    const skip = (page - 1) * limit;
-    const sortField = sortBy as keyof IDepartments;
-    const sort: Record<string, 1 | -1> = {
-      [sortField]: sortOrder === 'asc' ? 1 : -1
-    };
-    const searchRegex = new RegExp(query, 'i');
-
-    const [departments, total] = await Promise.all([
-      DepartmentModel.find({
-        $or: [
-          { email: { $regex: searchRegex } },
-          { name: { $regex: searchRegex } }
-        ]})
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      DepartmentModel.countDocuments({
+    let filter = {};
+    if (query) {
+      const searchRegex = new RegExp(query, 'i');
+      filter = {
         $or: [
           { email: { $regex: searchRegex } },
           { name: { $regex: searchRegex } }
         ]
-      })
+      }
+    }
+
+    const [departments, total] = await Promise.all([
+      DepartmentModel.find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      DepartmentModel.countDocuments(filter)
     ])
 
     return {

@@ -20,7 +20,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         'error',
         'Unauthorized'
       )
-    )
+    );
   }
 
   try {
@@ -30,12 +30,12 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     if (!user) throw new Error('User not found');
     req.user = user;
     next();
-  } catch (error: any) {
+  } catch (error) {
     return res.status(401).json(
       formatResponse(
         'error',
-        error.message
+        `Lỗi hệ thống: ${error}`
       )
-    )
+    );
   }
 }
