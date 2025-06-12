@@ -2,12 +2,18 @@ import { Request, Response } from "express";
 import { EventService } from "../services";
 import { formatResponse } from "../utils/response.util";
 import { AuthMessages, EventMessages } from "../constants/messages";
-import { Role } from "../constants/enum";
 import mongoose from "mongoose";
 import { IEvent } from "../interfaces/Event.interface";
 
 const eventService = new EventService();
 
+/**
+ * Create event
+ * 
+ * @param req 
+ * @param res 
+ * @returns new event
+ */
 export const createEvent = async(req: Request, res: Response) => {
   try {
     const currentUser = req.user;
@@ -52,6 +58,13 @@ export const createEvent = async(req: Request, res: Response) => {
   }
 }
 
+/**
+ * Update event
+ * 
+ * @param req 
+ * @param res 
+ * @returns update event
+ */
 export const updateEvent = async(req: Request, res: Response) => {
   try {
     const eventId = req.params.id;
@@ -117,6 +130,13 @@ export const updateEvent = async(req: Request, res: Response) => {
   }
 }
 
+/**
+ * Delete event
+ * 
+ * @param req 
+ * @param res 
+ * @returns boolean
+ */
 export const deleteEvent = async(req: Request, res: Response) => {
   try {
     const currentUser = req.user;
@@ -157,6 +177,13 @@ export const deleteEvent = async(req: Request, res: Response) => {
   }
 }
 
+/**
+ * Get detail event
+ * 
+ * @param req 
+ * @param res 
+ * @returns detail event
+ */
 export const getEventById = async(req: Request, res: Response) => {
   try {
     const user = req.user;
@@ -205,6 +232,13 @@ export const getEventById = async(req: Request, res: Response) => {
   }
 }
 
+/**
+ * Get list events
+ * 
+ * @param req 
+ * @param res 
+ * @returns list events
+ */
 export const getAllEvents = async(req: Request, res: Response) => {
   try {
     const {
@@ -287,6 +321,13 @@ export const getAllEvents = async(req: Request, res: Response) => {
 //   }
 // }
 
+/**
+ * Cancelled event
+ * 
+ * @param req 
+ * @param res 
+ * @returns boolean
+ */
 export const cancellEvent = async(req: Request, res: Response) => {
   try {
     if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -344,6 +385,13 @@ export const cancellEvent = async(req: Request, res: Response) => {
   }
 }
 
+/**
+ * Get events by category
+ * 
+ * @param req 
+ * @param res 
+ * @returns list events by category
+ */
 export const getEventCategories = async(req: Request, res: Response) => {
   try {
     // if(!mongoose.Types.ObjectId.isValid(req.params.id)) {

@@ -7,6 +7,13 @@ import { IEventCategories } from "../interfaces/EventCategories.interface";
 
 const eventCategoriesService = new EventCategoriesService();
 
+/**
+ * Get list event categories
+ * 
+ * @param req 
+ * @param res 
+ * @returns list event categories
+ */
 export const getAllEventCategories = async (req: Request, res: Response) => {
   try {
     const {
@@ -81,6 +88,13 @@ export const getAllEventCategories = async (req: Request, res: Response) => {
 //   }
 // }
 
+/**
+ * Get detail event category
+ * 
+ * @param req 
+ * @param res 
+ * @returns event category
+ */
 export const getDetailEventCategories = async (req: Request, res: Response) => {
   try {
     const eventCat = await eventCategoriesService.getEventCategoriesById(req.params.id as string);
@@ -110,6 +124,13 @@ export const getDetailEventCategories = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Create event category
+ * 
+ * @param req 
+ * @param res 
+ * @returns new event category
+ */
 export const createEventCategories = async(req: Request, res: Response) => {
   try {
     const currentUser = req.user;
@@ -158,6 +179,13 @@ export const createEventCategories = async(req: Request, res: Response) => {
   }
 }
 
+/**
+ * Update event category
+ * 
+ * @param req 
+ * @param res 
+ * @returns update event category
+ */
 export const updateEventCategories = async (req: Request, res: Response) => {
   try {
     const currentUser = req.user;
@@ -203,6 +231,13 @@ export const updateEventCategories = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Delete event category
+ * 
+ * @param req 
+ * @param res 
+ * @returns boolean
+ */
 export const deleteEventCategories = async (req: Request, res: Response) => {
   try {
     const currentUser = req.user;

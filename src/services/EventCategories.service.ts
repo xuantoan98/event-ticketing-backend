@@ -76,7 +76,7 @@ export class EventCategoriesService {
         .limit(limit)
         .lean(),
       EventCategoriesModel.countDocuments(filter)
-    ])
+    ]);
 
     return {
       eventCats,
