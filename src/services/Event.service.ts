@@ -7,13 +7,13 @@ import { EventStatus } from "../constants/enum";
 export class EventService {
   async create(eventData: IEvent) {
     // Check ticket ID
-    if(eventData.ticketsId) {
-      for (const ticketId of eventData.ticketsId) {
-        if(!Types.ObjectId.isValid(ticketId.toString())) {
-          throw new Error(`Ticket ID không hợp lệ: ${ticketId}`);
-        }
-      }
-    }
+    // if(eventData.ticketsId) {
+    //   for (const ticketId of eventData.ticketsId) {
+    //     if(!Types.ObjectId.isValid(ticketId.toString())) {
+    //       throw new Error(`Ticket ID không hợp lệ: ${ticketId}`);
+    //     }
+    //   }
+    // }
 
     // Check event categories ID
     if(eventData.eventCategoriesId) {
@@ -40,13 +40,13 @@ export class EventService {
     }
 
     // Check ticket ID
-    if(eventData.ticketsId) {
-      for (const ticketId of eventData.ticketsId) {
-        if(!Types.ObjectId.isValid(ticketId.toString())) {
-          throw new Error(`Ticket ID không hợp lệ: ${ticketId}`);
-        }
-      }
-    }
+    // if(eventData.ticketsId) {
+    //   for (const ticketId of eventData.ticketsId) {
+    //     if(!Types.ObjectId.isValid(ticketId.toString())) {
+    //       throw new Error(`Ticket ID không hợp lệ: ${ticketId}`);
+    //     }
+    //   }
+    // }
 
     // Check event categories ID
     if(eventData.eventCategoriesId) {
@@ -75,8 +75,8 @@ export class EventService {
       throw new Error('ID sự kiện không hợp lệ');
     }
 
-    const eventDeleted = await EventModel.findByIdAndDelete(eventId).exec();
-
+    // const eventDeleted = await EventModel.findByIdAndDelete(eventId).exec();
+    const eventDeleted = await EventModel.findByIdAndUpdate(eventId, { status: EventStatus.CANCELLED });
     if(!eventDeleted) {
       throw new Error('Không tìm thấy sự kiện để xóa');
     }
@@ -92,7 +92,7 @@ export class EventService {
     return EventModel.findById(eventId).exec();
   }
 
-  async getEvents(options: PaginationOptions) {
+  async getEvents(query: string, options: PaginationOptions) {
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;
     const sortField = sortBy as keyof IEvent;
@@ -100,14 +100,24 @@ export class EventService {
       [sortField]: sortOrder === 'asc' ? 1 : -1
     };
 
+    let filter = {};
+    if (query) {
+      const searchRegex = new RegExp(query, 'i');
+      filter = {
+        $or: [
+          { title: { $regex: searchRegex } }
+        ]
+      }
+    }
+
     const [events, total] = await Promise.all([
-      EventModel.find()
+      EventModel.find(filter)
       .sort(sort)
       .skip(skip)
       .limit(limit)
       .lean()
       .exec(),
-      EventModel.countDocuments()
+      EventModel.countDocuments(filter)
     ]);
 
     return {
@@ -121,37 +131,37 @@ export class EventService {
     }
   }
 
-  async search(query: string, options: PaginationOptions) {
-    const { page, limit, sortBy, sortOrder } = options;
-    const skip = (page - 1) * limit;
-    const sortField = sortBy as keyof IEvent;
-    const sort: Record<string, 1 | -1> = {
-      [sortField]: sortOrder === 'asc' ? 1 : -1
-    };
+  // async search(query: string, options: PaginationOptions) {
+  //   const { page, limit, sortBy, sortOrder } = options;
+  //   const skip = (page - 1) * limit;
+  //   const sortField = sortBy as keyof IEvent;
+  //   const sort: Record<string, 1 | -1> = {
+  //     [sortField]: sortOrder === 'asc' ? 1 : -1
+  //   };
 
-    const searchRegex = new RegExp(query, 'i');
-    const [events, total] = await Promise.all([
-      EventModel.find({
-        title: searchRegex
-      })
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .lean()
-      .exec(),
-      EventModel.countDocuments()
-    ]);
+  //   const searchRegex = new RegExp(query, 'i');
+  //   const [events, total] = await Promise.all([
+  //     EventModel.find({
+  //       title: searchRegex
+  //     })
+  //     .sort(sort)
+  //     .skip(skip)
+  //     .limit(limit)
+  //     .lean()
+  //     .exec(),
+  //     EventModel.countDocuments()
+  //   ]);
 
-    return {
-      events,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
-      }
-    }
-  }
+  //   return {
+  //     events,
+  //     pagination: {
+  //       total,
+  //       page,
+  //       limit,
+  //       totalPages: Math.ceil(total / limit)
+  //     }
+  //   }
+  // }
 
   async cancelEvent(eventId: string) {
     if(Types.ObjectId.isValid(eventId.toString())) {

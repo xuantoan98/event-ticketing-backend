@@ -45,6 +45,7 @@ export enum EventMessages {
   CREATED = 'Thêm mới sự kiện thành công',
   NOT_FOUND = 'Không tìm thấy sự kiện',
   UPDATED = 'Cập nhật thông tin sự kiện thành công',
+  DELETE_SUCCESSFULLY = 'Xóa thông tin sự kiện thành công',
   ID_NOT_VALID = 'ID sự kiện không hợp lệ',
   GET_DETAIL_EVENT_SUCCESSFULLY = 'Lấy chi tiết thông tin sự kiện thành công',
   GET_ALL_EVENT_SUCCESSFULLY = 'Lấy danh sách sự kiện thành công',

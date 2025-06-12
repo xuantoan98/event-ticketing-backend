@@ -24,6 +24,7 @@ export interface IEvent {
   createdAt: Date;
   updateAt: Date;
   createdBy: Schema.Types.ObjectId;
+  updatedBy: Schema.Types.ObjectId;
 
   eventCategoriesId: Schema.Types.ObjectId[];
 }

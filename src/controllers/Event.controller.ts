@@ -3,14 +3,24 @@ import { EventService } from "../services";
 import { formatResponse } from "../utils/response.util";
 import { AuthMessages, EventMessages } from "../constants/messages";
 import { Role } from "../constants/enum";
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
+import { IEvent } from "../interfaces/Event.interface";
 
 const eventService = new EventService();
 
 export const createEvent = async(req: Request, res: Response) => {
   try {
-    const user = req.user;
-    if(!user || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(user.role)) {
+    const currentUser = req.user;
+    // if(!currentUser || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(currentUser.role)) {
+    //   return res.status(403).json(
+    //     formatResponse(
+    //       'error',
+    //       AuthMessages.FORBIDDEN
+    //     )
+    //   );
+    // }
+
+    if (!currentUser) {
       return res.status(403).json(
         formatResponse(
           'error',
@@ -18,9 +28,10 @@ export const createEvent = async(req: Request, res: Response) => {
         )
       );
     }
+
     const eventData = {
       ...req.body,
-      createdBy: user?._id
+      createdBy: currentUser?._id
     };
 
     const event = await eventService.create(eventData);
@@ -44,10 +55,17 @@ export const createEvent = async(req: Request, res: Response) => {
 export const updateEvent = async(req: Request, res: Response) => {
   try {
     const eventId = req.params.id;
-    const user = req.user;
-    const updateData = req.body;
+    const currentUser = req.user;
+    // if(!currentUser || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(currentUser.role)) {
+    //   return res.status(403).json(
+    //     formatResponse(
+    //       'error',
+    //       AuthMessages.FORBIDDEN
+    //     )
+    //   );
+    // }
 
-    if(!user || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(user.role)) {
+    if (!currentUser) {
       return res.status(403).json(
         formatResponse(
           'error',
@@ -58,13 +76,28 @@ export const updateEvent = async(req: Request, res: Response) => {
 
     const eventExist = await eventService.getEventById(eventId);
     if(!eventExist) {
-      return res.status(500).json(
+      return res.status(400).json(
         formatResponse(
           'error',
           EventMessages.NOT_FOUND
         )
       );
     }
+
+    // Người dùng không tạo sự kiện thì không được sửa
+    if (eventExist.createdBy.toString() !== currentUser?._id.toString()) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.FORBIDDEN
+        )
+      );
+    }
+
+    const updateData = {
+      ...req.body,
+      updatedBy: currentUser._id
+    } as IEvent;
 
     const result = await eventService.update(eventId, updateData);
     return res.status(200).json(
@@ -86,7 +119,34 @@ export const updateEvent = async(req: Request, res: Response) => {
 
 export const deleteEvent = async(req: Request, res: Response) => {
   try {
-    
+    const currentUser = req.user;
+    const eventExist = await eventService.getEventById(req.params.id);
+
+    if (!currentUser || eventExist?.createdBy.toString() !== currentUser._id.toString()) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.FORBIDDEN
+        )
+      );
+    }
+
+    if(!eventExist) {
+      return res.status(400).json(
+        formatResponse(
+          'error',
+          EventMessages.NOT_FOUND
+        )
+      );
+    }
+
+    const result = await eventService.delete(req.params.id);
+    return res.status(200).json(
+      formatResponse(
+        'success',
+        EventMessages.DELETE_SUCCESSFULLY
+      )
+    );
   } catch (error) {
     return res.status(500).json(
       formatResponse(
@@ -110,7 +170,7 @@ export const getEventById = async(req: Request, res: Response) => {
     }
 
     if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(500).json(
+      return res.status(400).json(
         formatResponse(
           'error',
           EventMessages.ID_NOT_VALID
@@ -119,6 +179,15 @@ export const getEventById = async(req: Request, res: Response) => {
     }
 
     const result = await eventService.getEventById(req.params.id);
+    if (!result) {
+      return res.status(400).json(
+        formatResponse(
+          'error',
+          EventMessages.NOT_FOUND
+        )
+      );
+    }
+
     return res.status(200).json(
       formatResponse(
         'success',
@@ -139,59 +208,20 @@ export const getEventById = async(req: Request, res: Response) => {
 export const getAllEvents = async(req: Request, res: Response) => {
   try {
     const {
-      page = 1,
-      limit = 10,
-      sortBy = 'createdAt',
-      sortOrder = 'asc'
-    } = req.query as {
-      page?: string;
-      limit?: string;
-      sortBy?: 'createdAt' | 'name' | 'email';
-      sortOrder?: 'asc' | 'desc';
-    };
-
-    const result = await eventService.getEvents({
-      page: parseInt(page as string),
-      limit: parseInt(limit as string),
-      sortBy,
-      sortOrder
-    });
-    return res.status(200).json(
-      formatResponse(
-        'success',
-        EventMessages.GET_ALL_EVENT_SUCCESSFULLY,
-        result.events,
-        undefined,
-        result.pagination
-      )
-    );
-  } catch (error) {
-    return res.status(500).json(
-      formatResponse(
-        'error',
-        `Lỗi hệ thống: ${error}`
-      )
-    );
-  }
-}
-
-export const searchEvents = async(req: Request, res: Response) => {
-  try {
-    const {
       q,
       page = 1,
       limit = 10,
       sortBy = 'createdAt',
       sortOrder = 'asc'
     } = req.query as {
-      q: string,
+      q: string;
       page?: string;
       limit?: string;
-      sortBy?: 'createdAt' | 'name' | 'email';
+      sortBy?: 'createdAt';
       sortOrder?: 'asc' | 'desc';
     };
 
-    const result = await eventService.search(q, {
+    const result = await eventService.getEvents(q, {
       page: parseInt(page as string),
       limit: parseInt(limit as string),
       sortBy,
@@ -216,18 +246,49 @@ export const searchEvents = async(req: Request, res: Response) => {
   }
 }
 
+// export const searchEvents = async(req: Request, res: Response) => {
+//   try {
+//     const {
+//       q,
+//       page = 1,
+//       limit = 10,
+//       sortBy = 'createdAt',
+//       sortOrder = 'asc'
+//     } = req.query as {
+//       q: string,
+//       page?: string;
+//       limit?: string;
+//       sortBy?: 'createdAt' | 'name' | 'email';
+//       sortOrder?: 'asc' | 'desc';
+//     };
+
+//     const result = await eventService.search(q, {
+//       page: parseInt(page as string),
+//       limit: parseInt(limit as string),
+//       sortBy,
+//       sortOrder
+//     });
+//     return res.status(200).json(
+//       formatResponse(
+//         'success',
+//         EventMessages.GET_ALL_EVENT_SUCCESSFULLY,
+//         result.events,
+//         undefined,
+//         result.pagination
+//       )
+//     );
+//   } catch (error) {
+//     return res.status(500).json(
+//       formatResponse(
+//         'error',
+//         `Lỗi hệ thống: ${error}`
+//       )
+//     );
+//   }
+// }
+
 export const cancellEvent = async(req: Request, res: Response) => {
   try {
-    const user = req.user;
-    if(!user || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(user.role)) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      );
-    }
-
     if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json(
         formatResponse(
@@ -237,7 +298,26 @@ export const cancellEvent = async(req: Request, res: Response) => {
       );
     }
 
+    const user = req.user;
     const eventExist = await eventService.getEventById(req.params.id);
+    // if(!user || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(user.role)) {
+    //   return res.status(403).json(
+    //     formatResponse(
+    //       'error',
+    //       AuthMessages.FORBIDDEN
+    //     )
+    //   );
+    // }
+
+    if (!user || eventExist?.createdBy.toString() !== user._id.toString()) {
+      return res.status(403).json(
+        formatResponse(
+          'error',
+          AuthMessages.FORBIDDEN
+        )
+      );
+    }
+
     if(!eventExist) {
       return res.status(400).json(
         formatResponse(
@@ -327,7 +407,7 @@ export const getEventCategories = async(req: Request, res: Response) => {
 
 export const getEventsByTickets = async(req: Request, res: Response) => {
   try {
-    
+    return res.status(400).json({ message: 'Tính năng chưa được phát triển' });
   } catch (error) {
     return res.status(500).json(
       formatResponse(

@@ -63,6 +63,11 @@ const eventSchema = new Schema<IEvent>({
     type: Schema.Types.ObjectId,
     ref: 'User',
     require: true
+  },
+  updatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    require: true
   }
 }, {
   timestamps: true 
@@ -74,5 +79,5 @@ eventSchema.virtual('durationHours').get(function() {
   return Math.round(diffMs / (1000 * 60 * 60));
 });
 
-const Event = model<IEvent>("Event", eventSchema);
+const Event = model<IEvent>('Event', eventSchema);
 export default Event;
