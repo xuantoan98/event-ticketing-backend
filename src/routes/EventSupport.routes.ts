@@ -30,7 +30,7 @@
 
 /**
  * @swagger
- * /event-support
+ * /event-support:
  *  get:
  *    summary: Lấy danh sách người hỗ trợ sự kiện
  *    tags: [EventSupports]
@@ -76,7 +76,7 @@
 
 /**
  * @swagger
- * /event-support/{id}
+ * /event-support/{id}:
  *  get:
  *    summary: Lấy thông tin người hỗ trợ sự kiện
  *    tags: [EventSupports]
@@ -102,7 +102,7 @@
 
 /**
  * @swagger
- * /event-support
+ * /event-support:
  *  post:
  *    summary: Tạo mới người hỗ trợ sự kiện
  *    tags: [EventSupports]
@@ -127,7 +127,7 @@
 
 /**
  * @swagger
- * /event-support/{id}
+ * /event-support/{id}:
  *  put:
  *    summary: Cập nhật người hỗ trợ sự kiện
  *    tags: [EventSupports]
@@ -159,7 +159,7 @@
 
 /**
  * @swagger
- * /event-support/{id}
+ * /event-support/{id}:
  *  delete:
  *    summary: Xóa người hỗ trợ sự kiện
  *    tags: [EventSupports]

@@ -153,8 +153,8 @@
 
 /**
  * @swagger
- * /event-invite:
- *  selete:
+ * /event-invite/{id}:
+ *  delete:
  *    summary: Xóa khách mời sự kiện
  *    tags: [EventInvites]
  *    security:
