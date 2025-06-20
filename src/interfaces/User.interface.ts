@@ -16,21 +16,25 @@ export interface IUserDocument extends Document {
   updatedAt: Date;
   passwordChangedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
-  toResponse(): IUserResponse;
   generateAuthToken(): string;
   refreshTokens: string[];
   departmentId: Schema.Types.ObjectId;
+  createdBy: Schema.Types.ObjectId;
+  updatedBy: Schema.Types.ObjectId;
 }
 
-export interface IUserResponse {
-  id: string;
+export interface IUserCreate {
   name: string;
   email: string;
+  password: string;
   role: string;
+  status: number;
   dateOfBirth?: Date;
   avatar?: string;
   address?: string;
   gender?: Gender;
   phone?: string;
-  createdAt: string;
+  departmentId?: Schema.Types.ObjectId;
+  createdBy: Schema.Types.ObjectId;
+  updatedBy: Schema.Types.ObjectId;
 }

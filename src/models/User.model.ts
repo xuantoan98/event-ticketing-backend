@@ -1,6 +1,6 @@
-import { Schema, Types, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
-import { IUserDocument, IUserResponse } from "../interfaces/User.interface";
+import { IUserDocument } from "../interfaces/User.interface";
 import jwt from 'jsonwebtoken';
 import { Gender, Role, Status } from "../constants/enum";
 
@@ -45,6 +45,16 @@ const userSchema = new Schema<IUserDocument> (
 			type: Schema.Types.ObjectId,
 			ref: 'Department',
 			required: true
+		},
+		createdBy: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			require: true
+		},
+		updatedBy: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			require: true
 		}
 	},
 	{
@@ -81,15 +91,15 @@ userSchema.methods.comparePassword = async function(
 }
 
 // Convert to response format
-userSchema.methods.toResponse = function():IUserResponse {
-	return {
-    id: this._id.toString(),
-    name: this.name,
-    email: this.email,
-    role: this.role,
-    createdAt: this.createdAt.toISOString()
-  };
-};
+// userSchema.methods.toResponse = function():IUserResponse {
+// 	return {
+//     id: this._id.toString(),
+//     name: this.name,
+//     email: this.email,
+//     role: this.role,
+//     createdAt: this.createdAt.toISOString()
+//   };
+// };
 
 userSchema.methods.generateAuthToken = function() {	
 	return jwt.sign(

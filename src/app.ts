@@ -3,10 +3,10 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mainRoutes from "./routes";
-import { errorHandler } from './middlewares/error.middleware';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import { swaggerOptions } from './swaggers';
+import { errorHandler } from './middlewares/errorHandler.middleware';
 
 dotenv.config();
 

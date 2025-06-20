@@ -6,8 +6,8 @@ export enum Gender {
 
 export enum Role {
   ADMIN = 'admin',
-  ORGANIZER = 'organizer',
-  CUSTOMER = 'customer'
+  CUSTOMER = 'customer',
+  EMPLOYEE = 'employee',
 }
 
 export enum Status {
