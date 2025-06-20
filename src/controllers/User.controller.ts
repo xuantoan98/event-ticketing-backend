@@ -6,6 +6,7 @@ import { IUserCreate, IUserDocument } from '../interfaces/User.interface';
 import { UserMessages } from '../constants/messages';
 import { HTTP } from '../constants/https';
 import { ApiError } from '../utils/ApiError';
+import { uploadSingleImage } from '../services/upload.service';
 
 const userService = new UserService();
 
@@ -254,16 +255,18 @@ export const updateAvatar = async(req: Request,res: Response) => {
       throw new ApiError(HTTP.UNAUTHORIZED, UserMessages.AUTH_ERROR);
     }
 
-    if(!req.file) {
+    const file = await uploadSingleImage('avatar', req) as any;
+    if(!file || !file.path) {
       throw new ApiError(HTTP.INTERNAL_ERROR, UserMessages.USER_CHOOSE_AVT);
     }
 
     const user = await userService.updateUser(
       req.user?.id.toString(),
       {
-        avatar: req.file?.path
-      } as IUserDocument
-    )
+        avatar: file.path
+      } as IUserDocument,
+      req.user as IUserDocument
+    );
 
     return res.status(HTTP.OK).json(
       formatResponse(
