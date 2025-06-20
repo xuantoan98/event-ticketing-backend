@@ -70,22 +70,13 @@ export const deleteFeedback = async (req: Request, res: Response) => {
 export const getFeedback = async (req: Request, res: Response) => {
   try {
     const result = await feedbackService.getFeedback(req.params.id.toString())
-    if(!result) {
-      return res.status(404).json(
-        formatResponse(
-          'error',
-          FeedbackMessages.NOT_FOUND
-        )
-      );
-    };
-
-    return res.status(200).json(formatResponse(
+    return res.status(HTTP.OK).json(formatResponse(
       'success',
       FeedbackMessages.GET_DETAIL_EVENT_FEEDBACK,
       result
     ));
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -117,7 +108,7 @@ export const getFeedbacks = async (req: Request, res: Response) => {
       sortOrder
     });
 
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         FeedbackMessages.GET_ALL_EVENT_FEEDBACK,
@@ -127,7 +118,7 @@ export const getFeedbacks = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`

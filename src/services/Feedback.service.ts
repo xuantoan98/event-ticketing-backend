@@ -103,14 +103,14 @@ export class FeedbackService {
       throw new ApiError(HTTP.NOT_FOUND, 'Phản hồi không tồn tại trong hệ thống');
     }
 
-    return await Feedback.findById(feedbackId);
+    return feedbackExit;
   }
 
   async getFeedbacks(options: PaginationOptions, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
-    
+
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;
     const sortField = sortBy as keyof IFeedback;
