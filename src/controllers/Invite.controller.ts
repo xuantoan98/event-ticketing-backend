@@ -4,42 +4,28 @@ import { formatResponse } from "../utils/response.util";
 import Invite from "../models/Invite.model";
 import { InviteMessages } from "../constants/messages";
 import { IInvites } from "../interfaces/Invite.interface";
+import { HTTP } from "../constants/https";
 
 const inviteService = new InviteService();
 
 export const createInvite = async (req: Request, res: Response) => {
   try {
-    const user = req.user;
-    const inviteExit = await Invite.findOne({
-      name: req.body.name,
-      email: req.body.email
-    });
-    
-    if(inviteExit) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          InviteMessages.INVITE_EXITS
-        )
-      )
-    }
-
     const inviteCreate = {
       ...req.body,
       createdAt: req.user?._id
     } as IInvites;
 
-    const invite = await inviteService.create(inviteCreate);
+    const invite = await inviteService.create(inviteCreate, req.user);
     
-    return res.status(201).json(
+    return res.status(HTTP.CREATED).json(
       formatResponse(
         'success',
         InviteMessages.CREATE_SUCCESSFULLY,
         invite
       )
-    )
+    );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -50,16 +36,6 @@ export const createInvite = async (req: Request, res: Response) => {
 
 export const updateInvite = async (req: Request, res: Response) => {
   try {
-    const inviteExit = await Invite.findById(req.params.id.toString());
-    if(!inviteExit) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          InviteMessages.NOT_FOUND
-        )
-      );
-    };
-
     const inviteUpdate = {
       ...req.body,
       updatedBy: req.user?._id
@@ -67,10 +43,11 @@ export const updateInvite = async (req: Request, res: Response) => {
 
     const invite = await inviteService.update(
       req.params.id.toString(),
-      inviteUpdate
+      inviteUpdate,
+      req.user
     );
 
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         InviteMessages.UPDATE_SUCCESSFULLY,
@@ -78,7 +55,7 @@ export const updateInvite = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -89,25 +66,15 @@ export const updateInvite = async (req: Request, res: Response) => {
 
 export const deleteInvite = async (req: Request, res: Response) => {
   try {
-    const inviteExit = await Invite.findById(req.params.id.toString());
-    if(!inviteExit) {
-      res.status(500).json(
-        formatResponse(
-          'error',
-          InviteMessages.NOT_FOUND
-        )
-      );
-    };
-
-    const invite = await inviteService.delete(req.params.id.toString());
-    return res.status(200).json(
+    await inviteService.delete(req.params.id.toString());
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         InviteMessages.DELETE_SUCCESSFULLY
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -118,16 +85,7 @@ export const deleteInvite = async (req: Request, res: Response) => {
 
 export const getDetailInvite = async (req: Request, res: Response) => {
   try {
-    const invite = await inviteService.getInviteById(req.params.id.toString());
-
-    if(!invite) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          InviteMessages.NOT_FOUND
-        )
-      );
-    }
+    const invite = await inviteService.getInviteById(req.params.id.toString(), req.user);
 
     return res.status(200).json(formatResponse(
       'success',
@@ -163,7 +121,7 @@ export const getAllInvite = async (req: Request, res: Response) => {
       limit: parseInt(limit as string),
       sortBy,
       sortOrder
-    });
+    }, req.user);
 
     return res.status(200).json(
       formatResponse(

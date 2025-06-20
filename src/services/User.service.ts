@@ -67,7 +67,7 @@ export class UserService {
 
     const isMatch = await user.comparePassword(password);
     if(!isMatch) {
-      throw new ApiError(HTTP.BAD_REQUEST, 'Mật khẩu không chính xác')
+      throw new ApiError(HTTP.BAD_REQUEST, 'Mật khẩu không chính xác');
     }
 
     return user;
@@ -76,7 +76,7 @@ export class UserService {
   async updateUser(userId: string, updateData: IUserDocument, currentUser?: IUserDocument) {
     // Kiểm tra ID người dùng hợp lệ
     if(!Types.ObjectId.isValid(userId)) {
-      throw new ApiError(HTTP.BAD_REQUEST, 'ID người dùng không đúng')
+      throw new ApiError(HTTP.BAD_REQUEST, 'ID người dùng không đúng');
     }
 
     // Chỉ user có quyền admin hoặc chính người dùng đó mới có thể cập nhật thông tin
@@ -87,14 +87,14 @@ export class UserService {
     const allowedFields = [
       'name', 'dateOfBirth', 'address', 
       'gender', 'phone', 'avatar'
-    ]
+    ];
 
     const filererUpdate = Object.keys(updateData)
       .filter(key => allowedFields.includes(key))
       .reduce((obj, key) => {
         obj[key] = (updateData as any)[key]
         return obj
-      }, {} as any)
+      }, {} as any);
 
     if(updateData.departmentId) {
       const checkDepartment = await Department.findById(updateData.departmentId);
@@ -162,7 +162,7 @@ export class UserService {
         limit,
         totalPages: Math.ceil(total / limit)
       }
-    }
+    };
   }
 
   async searchUsers( query: string, options: PaginationOptions) {
