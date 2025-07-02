@@ -35,7 +35,7 @@ export class AuthService {
   ) {
     const user = await User.findOne({ email }).select('+password +refreshTokens');
     if (!user || !(await user.comparePassword(password))) {
-      throw new Error('Invalid credentials');
+      throw new Error('Email hoặc mật khẩu không đúng');
     }
     return user;
   }

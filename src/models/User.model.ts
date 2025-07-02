@@ -44,7 +44,7 @@ const userSchema = new Schema<IUserDocument> (
 		departmentId: {
 			type: Schema.Types.ObjectId,
 			ref: 'Department',
-			required: true
+			required: false
 		},
 		createdBy: {
 			type: Schema.Types.ObjectId,

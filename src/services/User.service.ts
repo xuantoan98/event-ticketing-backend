@@ -39,6 +39,19 @@ export class UserService {
     return user;
   }
 
+  async createUserWithoutAuth(userData: IUserCreate) {
+    const userExist = await User.findOne({
+      email: userData.email
+    });
+
+    if(userExist) {
+      throw new ApiError(HTTP.CONFLICT, 'Người dùng đã tồn tại với email này');
+    }
+
+    const user = await User.create(userData);
+    return user;
+  }
+
   async findUserByEmail(email: string, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);

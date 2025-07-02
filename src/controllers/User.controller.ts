@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services';
-import { validationResult } from 'express-validator';
 import { formatResponse } from '../utils/response.util';
 import { IUserCreate, IUserDocument } from '../interfaces/User.interface';
 import { UserMessages } from '../constants/messages';
@@ -11,30 +10,32 @@ import { uploadSingleImage } from '../services/upload.service';
 const userService = new UserService();
 
 export const register = async ( req: Request, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(HTTP.BAD_REQUEST).json(
-      formatResponse(
-        'error',
-        errors.array()[0].msg
-      )
-    )
-  }
+  // const errors = validationResult(req);
+  // if (!errors.isEmpty()) {
+  //   return res.status(HTTP.BAD_REQUEST).json(
+  //     formatResponse(
+  //       'error',
+  //       errors.array()[0].msg
+  //     )
+  //   )
+  // }
 
   try {
     const dataUserCreate = {
       ...req.body,
       createdBy: req.user?._id
     } as IUserCreate;
-    const user = await userService.createUser(dataUserCreate, req.user as IUserDocument);
-    const token = user.generateAuthToken();
+
+    // const user = await userService.createUser(dataUserCreate, req.user as IUserDocument);
+    // const token = user.generateAuthToken();
+
+    const user = await userService.createUserWithoutAuth(dataUserCreate);
 
     return res.status(HTTP.CREATED).json(
       formatResponse(
         'success',
         UserMessages.REGISTER_SUCCESSFULLY,
-        user,
-        token
+        user
       )
     )
   } catch (error: any) {
