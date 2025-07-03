@@ -19,7 +19,7 @@ export class AuthController {
       return res.status(200).json(
         formatResponse(
           'success',
-          'Login successful',
+          'Đăng nhập thành công',
           {
             user: user,
             tokens: {
