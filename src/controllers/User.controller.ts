@@ -9,26 +9,19 @@ import { uploadSingleImage } from '../services/upload.service';
 
 const userService = new UserService();
 
+/**
+ * Đăng ký người dùng
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const register = async ( req: Request, res: Response) => {
-  // const errors = validationResult(req);
-  // if (!errors.isEmpty()) {
-  //   return res.status(HTTP.BAD_REQUEST).json(
-  //     formatResponse(
-  //       'error',
-  //       errors.array()[0].msg
-  //     )
-  //   )
-  // }
-
   try {
     const dataUserCreate = {
       ...req.body,
       createdBy: req.user?._id
     } as IUserCreate;
-
-    // const user = await userService.createUser(dataUserCreate, req.user as IUserDocument);
-    // const token = user.generateAuthToken();
-
     const user = await userService.createUserWithoutAuth(dataUserCreate);
 
     return res.status(HTTP.CREATED).json(
@@ -48,6 +41,13 @@ export const register = async ( req: Request, res: Response) => {
   }
 }
 
+/**
+ * Đăng nhập
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const login = async(req: Request,res: Response) => {
   try {
     const { email, password } = req.body;
@@ -74,6 +74,13 @@ export const login = async(req: Request,res: Response) => {
   }
 }
 
+/**
+ * Lấy thông tin người dùng hiện tại
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const getCurrentUser = async(req: Request, res: Response) => {
   try {
     if (!req.user) {
@@ -98,35 +105,22 @@ export const getCurrentUser = async(req: Request, res: Response) => {
   }
 }
 
+/**
+ * Cập nhật thông tin người dùng
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const updateUser = async(req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      throw new ApiError(HTTP.UNAUTHORIZED, UserMessages.AUTH_ERROR);
-    }
-
-    // Chỉ cho phép cập nhật các trường này
-    const allowedUpdates = ['name', 'password'];
-    const updates = Object.keys(req.body);
-
-    // Kiểm tra trường không hợp lệ
-    const isValidOperation = updates.every(update => 
-      allowedUpdates.includes(update)
-    );
-
-    if (!isValidOperation) {
-      throw new ApiError(HTTP.BAD_REQUEST, UserMessages.ALLOW_FIELDS_NAME_OR_PASSS_UPDATE);
-    }
-
-    // Thêm người cập nhật
-    const dataUpdate = {
-      ...req.body,
-      updatedBy: req.user._id
-    } as IUserDocument;
-
     // Cập nhật user từ request.user
     const user = await userService.updateUser(
       req.params.id.toString(),
-      dataUpdate,
+      {
+        ...req.body,
+        updatedBy: req.user
+      },
       req.user as IUserDocument
     );
 
@@ -147,6 +141,13 @@ export const updateUser = async(req: Request, res: Response) => {
   }
 }
 
+/**
+ * Xóa thông tin người dùng
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const deleteUser = async(req: Request,res: Response) => {
   try {
     if (!req.user) {
@@ -174,6 +175,13 @@ export const deleteUser = async(req: Request,res: Response) => {
   }
 }
 
+/**
+ * Lấy danh sách người dùng
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const getUsers = async(req: Request,res: Response) => {  
   try {
     const { 
@@ -250,6 +258,13 @@ export const getUsers = async(req: Request,res: Response) => {
 //   }
 // }
 
+/**
+ * Cập nhật avatar
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const updateAvatar = async(req: Request,res: Response) => {
   try {
     if (!req.user) {
@@ -286,6 +301,13 @@ export const updateAvatar = async(req: Request,res: Response) => {
   }
 }
 
+/**
+ * Cập nhật mật khẩu
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const changePassword = async(req: Request,res: Response) => {
   try {
     if (!req.user) {

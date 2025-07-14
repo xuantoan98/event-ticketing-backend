@@ -4,7 +4,7 @@ import { IUserCreate, IUserDocument } from "../interfaces/User.interface";
 import mongoose, { Types } from "mongoose";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
 import Department from "../models/Department.model";
-import { AuthMessages } from "../constants/messages";
+import { AuthMessages, UserMessages } from "../constants/messages";
 import { Role } from "../constants/enum";
 import { ApiError } from "../utils/ApiError";
 import { HTTP } from "../constants/https";
@@ -87,9 +87,8 @@ export class UserService {
   }
 
   async updateUser(userId: string, updateData: IUserDocument, currentUser?: IUserDocument) {
-    // Kiểm tra ID người dùng hợp lệ
-    if(!Types.ObjectId.isValid(userId)) {
-      throw new ApiError(HTTP.BAD_REQUEST, 'ID người dùng không đúng');
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, UserMessages.AUTH_ERROR);
     }
 
     // Chỉ user có quyền admin hoặc chính người dùng đó mới có thể cập nhật thông tin
@@ -97,17 +96,17 @@ export class UserService {
       throw new ApiError(HTTP.FORBIDDEN, 'Bạn không có quyền cập nhật thông tin người dùng này');
     }
 
-    const allowedFields = [
-      'name', 'dateOfBirth', 'address', 
-      'gender', 'phone', 'avatar'
-    ];
+    // const allowedFields = [
+    //   'name', 'dateOfBirth', 'address', 
+    //   'gender', 'phone', 'avatar'
+    // ];
 
-    const filererUpdate = Object.keys(updateData)
-      .filter(key => allowedFields.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = (updateData as any)[key]
-        return obj
-      }, {} as any);
+    // const filererUpdate = Object.keys(updateData)
+    //   .filter(key => allowedFields.includes(key))
+    //   .reduce((obj, key) => {
+    //     obj[key] = (updateData as any)[key]
+    //     return obj
+    //   }, {} as any);
 
     if(updateData.departmentId) {
       const checkDepartment = await Department.findById(updateData.departmentId);
@@ -116,7 +115,7 @@ export class UserService {
 
     const user = await User.findByIdAndUpdate(
       userId,
-      filererUpdate,
+      updateData,
       { new: true, runValidators: true }
     ).select('-password') as IUserDocument;
 
