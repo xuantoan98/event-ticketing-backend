@@ -5,7 +5,7 @@ import { PaginationOptions } from "../interfaces/common/pagination.interface";
 import { IUserDocument } from "../interfaces/User.interface";
 import { ApiError } from "../utils/ApiError";
 import { HTTP } from "../constants/https";
-import { AuthMessages } from "../constants/messages";
+import { AuthMessages, CommonMessages, DepartmentMessages } from "../constants/messages";
 import { Role } from "../constants/enum";
 
 export class DepartmentService {
@@ -21,7 +21,7 @@ export class DepartmentService {
     });
 
     if(departmentExit) {
-      throw new ApiError(HTTP.CONFLICT, 'Phòng ban đã tồn tại');
+      throw new ApiError(HTTP.CONFLICT, DepartmentMessages.DEPARTMENT_EXITS);
     }
 
     const department = await DepartmentModel.create(departmentData);
@@ -41,12 +41,12 @@ export class DepartmentService {
     }
 
     if(!Types.ObjectId.isValid(departmentId)) {
-      throw new ApiError(HTTP.INTERNAL_ERROR, 'ID phòng ban không đúng');
+      throw new ApiError(HTTP.INTERNAL_ERROR, CommonMessages.ID_INVALID);
     }
 
     const departmentExits = await DepartmentModel.findById(departmentId.toString());
     if (!departmentExits) {
-      throw new ApiError(HTTP.NOT_FOUND, 'Phòng ban không tồn tại');
+      throw new ApiError(HTTP.NOT_FOUND, DepartmentMessages.NOT_FOUND);
     }
 
     const department = await DepartmentModel.findByIdAndUpdate(
@@ -56,7 +56,7 @@ export class DepartmentService {
     ).exec();
 
     if(!department) {
-      throw new ApiError(HTTP.NOT_FOUND, 'Phòng ban không tồn tại trong hệ thống');
+      throw new ApiError(HTTP.NOT_FOUND, DepartmentMessages.NOT_FOUND);
     }
     return department;
   }
@@ -78,7 +78,7 @@ export class DepartmentService {
 
     const departmentExits = await DepartmentModel.findById(departmentId.toString());
     if (!departmentExits) {
-      throw new ApiError(HTTP.NOT_FOUND, 'Phòng ban không tồn tại');
+      throw new ApiError(HTTP.NOT_FOUND, DepartmentMessages.NOT_FOUND);
     }
 
     // const result = await User.findOneAndDelete({ _id: userId })
@@ -97,7 +97,7 @@ export class DepartmentService {
    */
   async getDepartmentById(departmentId: string) {
     if(!Types.ObjectId.isValid(departmentId)) {
-      throw new Error('ID phòng ban không đúng');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     return await DepartmentModel.findById(departmentId);

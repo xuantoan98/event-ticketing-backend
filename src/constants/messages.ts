@@ -112,3 +112,7 @@ export enum FeedbackMessages {
   GET_DETAIL_EVENT_FEEDBACK = 'Lấy thông tin phản hồi thành công',
   GET_ALL_EVENT_FEEDBACK = 'Lấy danh sách phản hồi thành công'
 }
+
+export enum CommonMessages {
+  ID_INVALID = 'ID không hợp lệ'
+}

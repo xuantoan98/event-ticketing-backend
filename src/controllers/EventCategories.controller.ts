@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { EventCategoriesService } from "../services/EventCategories.service";
 import { formatResponse } from "../utils/response.util";
-import { AuthMessages, EventCategoriesMessages } from "../constants/messages";
-import EventCategories from "../models/EventCategories.model";
-import { IEventCategories } from "../interfaces/EventCategories.interface";
+import { EventCategoriesMessages } from "../constants/messages";
+import { HTTP } from "../constants/https";
 
 const eventCategoriesService = new EventCategoriesService();
 
@@ -37,7 +36,7 @@ export const getAllEventCategories = async (req: Request, res: Response) => {
       sortOrder
     });
 
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         EventCategoriesMessages.GET_ALL_EVENT_CATEGORY_SUCCESSFULLY,
@@ -47,7 +46,7 @@ export const getAllEventCategories = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Xảy ra lỗi: ${error}`
@@ -98,16 +97,7 @@ export const getAllEventCategories = async (req: Request, res: Response) => {
 export const getDetailEventCategories = async (req: Request, res: Response) => {
   try {
     const eventCat = await eventCategoriesService.getEventCategoriesById(req.params.id as string);
-    if(!eventCat) {
-      return res.status(404).json(
-        formatResponse(
-          'error',
-          EventCategoriesMessages.NOT_FOUND
-        )
-      )
-    }
-
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         EventCategoriesMessages.GET_DETAIL_EVENT_CATEGORY_SUCCESSFULLY,
@@ -115,7 +105,7 @@ export const getDetailEventCategories = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Xảy ra lỗi: ${error}`
@@ -133,36 +123,12 @@ export const getDetailEventCategories = async (req: Request, res: Response) => {
  */
 export const createEventCategories = async(req: Request, res: Response) => {
   try {
-    const currentUser = req.user;
-    const eventCatExit = await EventCategories.findOne({
-      name: req.body.name,
-    });
-
-    if (!currentUser) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      )
-    }
-    
-    if(eventCatExit) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          EventCategoriesMessages.EVENT_CATEGORY_EXIT
-        )
-      )
-    }
-
-    const dataCreate = {
+    const result = await eventCategoriesService.create({
       ...req.body,
-      createdBy: currentUser._id
-    } as IEventCategories;
-    const result = await eventCategoriesService.create(dataCreate);
+      createdBy: req.user?.id
+    }, req.user);
 
-    return res.status(201).json(
+    return res.status(HTTP.CREATED).json(
       formatResponse(
         'success',
         EventCategoriesMessages.CREATED,
@@ -170,7 +136,7 @@ export const createEventCategories = async(req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Xảy ra lỗi: ${error}`
@@ -188,33 +154,13 @@ export const createEventCategories = async(req: Request, res: Response) => {
  */
 export const updateEventCategories = async (req: Request, res: Response) => {
   try {
-    const currentUser = req.user;
-    const eventCatExit = await eventCategoriesService.getEventCategoriesById(req.params.id.toString());
-
-    if (!currentUser || eventCatExit?.createdBy.toString() !== currentUser._id.toString()) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      )
-    }
-
-    if(!eventCatExit) {
-      return res.status(404).json(
-        formatResponse(
-          'error',
-          EventCategoriesMessages.NOT_FOUND
-        )
-      );
-    }
-
     const eventCat = await eventCategoriesService.update(
       req.params.id.toString(),
-      req.body
+      req.body,
+      req.user
     );
 
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         EventCategoriesMessages.UPDATED,
@@ -222,7 +168,7 @@ export const updateEventCategories = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Xảy ra lỗi: ${error}`
@@ -240,36 +186,15 @@ export const updateEventCategories = async (req: Request, res: Response) => {
  */
 export const deleteEventCategories = async (req: Request, res: Response) => {
   try {
-    const currentUser = req.user;
-    const eventCatExit = await eventCategoriesService.getEventCategoriesById(req.params.id.toString());
-
-    if (!currentUser || eventCatExit?.createdBy.toString() !== currentUser._id.toString()) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      )
-    }
-
-    if(!eventCatExit) {
-      return res.status(404).json(
-        formatResponse(
-          'error',
-          EventCategoriesMessages.NOT_FOUND
-        )
-      );
-    }
-
-    await eventCategoriesService.delete(req.params.id.toString());
-    return res.status(200).json(
+    await eventCategoriesService.delete(req.params.id.toString(), req.user);
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         EventCategoriesMessages.DELETED
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Xảy ra lỗi: ${error}`

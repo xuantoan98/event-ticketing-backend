@@ -2,41 +2,78 @@ import { Types } from "mongoose";
 import { IEventCategories } from "../interfaces/EventCategories.interface";
 import EventCategoriesModel from "../models/EventCategories.model";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
+import { ApiError } from "../utils/ApiError";
+import { HTTP } from "../constants/https";
+import { AuthMessages, CommonMessages, EventCategoriesMessages } from "../constants/messages";
+import { IUserDocument } from "../interfaces/User.interface";
 
 export class EventCategoriesService {
-  async create(eventCategoriesData: IEventCategories) {
+  /**
+   * 
+   * @param eventCategoriesData 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
+  async create(eventCategoriesData: IEventCategories, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     const eventCatExit = await EventCategoriesModel.findOne({
       name: eventCategoriesData.name
     });
 
     if(eventCatExit) {
-      throw new Error('Danh mục sự kiện đã tồn tại');
+      throw new ApiError(HTTP.CONFLICT, EventCategoriesMessages.EVENT_CATEGORY_EXIT);
     }
 
-    const eventCat = EventCategoriesModel.create(eventCategoriesData);
+    const eventCat = await EventCategoriesModel.create(eventCategoriesData);
     return eventCat;
   };
 
-  async update(eventCatId: string, eventCatUpdate: IEventCategories) {
-    if(!Types.ObjectId.isValid(eventCatId)) {
-      throw new Error('ID danh mục sự kiện không đúng');
+  /**
+   * 
+   * @param eventCatId 
+   * @param eventCatUpdate 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
+  async update(eventCatId: string, eventCatUpdate: IEventCategories, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
 
-    const eventCat = EventCategoriesModel.findByIdAndUpdate(
+    if(!Types.ObjectId.isValid(eventCatId)) {
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
+    }
+
+    const eventCat = await EventCategoriesModel.findById(eventCatId.toString());
+    if (!eventCat) {
+      throw new ApiError(HTTP.NOT_FOUND, EventCategoriesMessages.NOT_FOUND);
+    }
+
+    const result = await EventCategoriesModel.findByIdAndUpdate(
       eventCatId,
       eventCatUpdate,
       { new: true, runValidators: true }
     ).exec();
-
-    if(!eventCat) {
-      throw new Error('Danh mục sự kiện không tồn tại trong hệ thống');
-    }
-    return eventCat;
+    return result;
   };
 
-  async delete(eventCatId: string) {
+  async delete(eventCatId: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if(!Types.ObjectId.isValid(eventCatId)) {
-      throw new Error('ID danh mục sự kiện không đúng');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
+    }
+
+    const eventCatExit = await EventCategoriesModel.findById(eventCatId.toString());
+    if (!eventCatExit) {
+      throw new ApiError(HTTP.NOT_FOUND, EventCategoriesMessages.NOT_FOUND);
     }
 
     // const result = await User.findOneAndDelete({ _id: userId })
@@ -50,10 +87,15 @@ export class EventCategoriesService {
 
   async getEventCategoriesById(eventCatId: string) {
     if(!Types.ObjectId.isValid(eventCatId)) {
-      throw new Error('ID danh mục sự kiện không đúng');
+      throw new ApiError(HTTP.BAD_REQUEST, 'ID danh mục sự kiện không đúng');
     }
 
-    return EventCategoriesModel.findById(eventCatId);
+    const eventCat = await EventCategoriesModel.findById(eventCatId);
+    if(!eventCat) {
+      throw new ApiError(HTTP.NOT_FOUND, EventCategoriesMessages.NOT_FOUND);
+    }
+
+    return eventCat;
   };
 
   async getEventCategories(query: string, options: PaginationOptions) {
