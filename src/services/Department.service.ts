@@ -2,8 +2,18 @@ import { Types } from "mongoose";
 import { IDepartments } from "../interfaces/Departments.interface";
 import DepartmentModel from "../models/Department.model";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
+import { IUserDocument } from "../interfaces/User.interface";
+import { ApiError } from "../utils/ApiError";
+import { HTTP } from "../constants/https";
+import { AuthMessages } from "../constants/messages";
+import { Role } from "../constants/enum";
 
 export class DepartmentService {
+  /**
+   * 
+   * @param departmentData 
+   * @returns 
+   */
   async create(departmentData: IDepartments) {
     const departmentExit = await DepartmentModel.findOne({
       name: departmentData.name,
@@ -11,16 +21,32 @@ export class DepartmentService {
     });
 
     if(departmentExit) {
-      throw new Error('Phòng ban đã tồn tại');
+      throw new ApiError(HTTP.CONFLICT, 'Phòng ban đã tồn tại');
     }
 
     const department = await DepartmentModel.create(departmentData);
     return department;
   }
 
-  async update(departmentId: string, departmentUpdate: IDepartments) {
+  /**
+   * 
+   * @param departmentId 
+   * @param departmentUpdate 
+   * @param currentUser 
+   * @returns 
+   */
+  async update(departmentId: string, departmentUpdate: IDepartments, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if(!Types.ObjectId.isValid(departmentId)) {
-      throw new Error('ID phòng ban không đúng');
+      throw new ApiError(HTTP.INTERNAL_ERROR, 'ID phòng ban không đúng');
+    }
+
+    const departmentExits = await DepartmentModel.findById(departmentId.toString());
+    if (!departmentExits) {
+      throw new ApiError(HTTP.NOT_FOUND, 'Phòng ban không tồn tại');
     }
 
     const department = await DepartmentModel.findByIdAndUpdate(
@@ -30,14 +56,29 @@ export class DepartmentService {
     ).exec();
 
     if(!department) {
-      throw new Error('Phòng ban không tồn tại trong hệ thống');
+      throw new ApiError(HTTP.NOT_FOUND, 'Phòng ban không tồn tại trong hệ thống');
     }
     return department;
   }
 
-  async delete(departmentId: string) {
-    if(!Types.ObjectId.isValid(departmentId)) {
-      throw new Error('ID phòng ban không đúng');
+  /**
+   * 
+   * @param departmentId 
+   * @param currentUser 
+   * @returns 
+   */
+  async delete(departmentId: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
+    if (currentUser?.role !== Role.ADMIN) {
+      throw new ApiError(HTTP.FORBIDDEN, AuthMessages.FORBIDDEN);
+    }
+
+    const departmentExits = await DepartmentModel.findById(departmentId.toString());
+    if (!departmentExits) {
+      throw new ApiError(HTTP.NOT_FOUND, 'Phòng ban không tồn tại');
     }
 
     // const result = await User.findOneAndDelete({ _id: userId })
@@ -49,6 +90,11 @@ export class DepartmentService {
     return result;
   }
 
+  /**
+   * 
+   * @param departmentId 
+   * @returns 
+   */
   async getDepartmentById(departmentId: string) {
     if(!Types.ObjectId.isValid(departmentId)) {
       throw new Error('ID phòng ban không đúng');
@@ -57,6 +103,12 @@ export class DepartmentService {
     return await DepartmentModel.findById(departmentId);
   }
 
+  /**
+   * 
+   * @param query 
+   * @param options 
+   * @returns 
+   */
   async getDepartments(query: string, options: PaginationOptions) {
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;

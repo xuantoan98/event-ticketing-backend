@@ -5,6 +5,7 @@ import Department from '../models/Department.model';
 import { AuthMessages, DepartmentMessages } from '../constants/messages';
 import { IDepartments } from '../interfaces/Departments.interface';
 import { Role } from '../constants/enum';
+import { HTTP } from '../constants/https';
 
 const departmentService = new DepartmentService();
 
@@ -38,7 +39,7 @@ export const getAllDepartments = async (req: Request, res: Response) => {
       sortOrder
     });
 
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         DepartmentMessages.GET_ALL_DEPARTMENTS,
@@ -48,7 +49,7 @@ export const getAllDepartments = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    res.status(500).json(
+    res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -108,13 +109,13 @@ export const getAllDepartments = async (req: Request, res: Response) => {
 export const getDetailDepartment = async(req: Request, res: Response) => {
   try {
     const department = await departmentService.getDepartmentById(req.params.id.toString());
-    res.status(200).json(formatResponse(
+    res.status(HTTP.OK).json(formatResponse(
       'success',
       DepartmentMessages.GET_DETAIL_DEPARTMENT,
       department
     ))
   } catch (error) {
-    res.status(500).json(
+    res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -132,27 +133,13 @@ export const getDetailDepartment = async(req: Request, res: Response) => {
  */
 export const createDepartment = async(req: Request, res: Response) => {
   try {
-    const departmentExit = await Department.findOne({
-      name: req.body.name,
-      email: req.body.email
-    });
-    
-    if(departmentExit) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          DepartmentMessages.DEPARTMENT_EXITS
-        )
-      )
-    }
-
     const dataCreate = {
       ...req.body,
       createdBy: req.user?._id
     } as IDepartments;
     const department = await departmentService.create(dataCreate);
     
-    return res.status(201).json(
+    return res.status(HTTP.CREATED).json(
       formatResponse(
         'success',
         DepartmentMessages.CREATE_SUCCESSFULLY,
@@ -160,7 +147,7 @@ export const createDepartment = async(req: Request, res: Response) => {
       )
     )
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -178,36 +165,18 @@ export const createDepartment = async(req: Request, res: Response) => {
  */
 export const updateDepartment = async(req: Request, res: Response) => {
   try {
-    const currentUser = req.user;
-    const departmentExit = await departmentService.getDepartmentById(req.params.id.toString());
-    if(!departmentExit) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          DepartmentMessages.NOT_FOUND
-        )
-      );
-    };
-
-    if (currentUser?.role !== Role.ADMIN && departmentExit.createdBy.toString() !== currentUser?._id.toString()) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      );
-    }
-
     const dataUpdate = {
       ...req.body,
       updatedBy: req.user?._id
     } as IDepartments;
+
     const department = await departmentService.update(
       req.params.id.toString(),
-      dataUpdate
+      dataUpdate,
+      req.user
     );
 
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         DepartmentMessages.UPDATE_SUCCESSFULLY,
@@ -215,7 +184,7 @@ export const updateDepartment = async(req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -232,35 +201,15 @@ export const updateDepartment = async(req: Request, res: Response) => {
  */
 export const deleteDepartment = async(req: Request, res: Response) => {
   try {
-    const currentUser = req.user;
-    const department = await departmentService.getDepartmentById(req.params.id.toString());
-    if(!department) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          DepartmentMessages.NOT_FOUND
-        )
-      );
-    };
-
-    if (currentUser?.role !== Role.ADMIN && department.createdBy.toString() !== currentUser?._id.toString()) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      );
-    }
-
-    const result = await departmentService.delete(req.params.id.toString());
-    return res.status(200).json(
+    await departmentService.delete(req.params.id.toString(), req.user);
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         DepartmentMessages.DELETE_SUCCESSFULLY
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
