@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { InviteService } from "../services";
 import { formatResponse } from "../utils/response.util";
-import Invite from "../models/Invite.model";
 import { InviteMessages } from "../constants/messages";
 import { IInvites } from "../interfaces/Invite.interface";
 import { HTTP } from "../constants/https";
@@ -87,13 +86,13 @@ export const getDetailInvite = async (req: Request, res: Response) => {
   try {
     const invite = await inviteService.getInviteById(req.params.id.toString(), req.user);
 
-    return res.status(200).json(formatResponse(
+    return res.status(HTTP.OK).json(formatResponse(
       'success',
       InviteMessages.GET_DETAIL_INVITE,
       invite
     ));
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -113,7 +112,7 @@ export const getAllInvite = async (req: Request, res: Response) => {
       page?: string;
       limit?: string;
       sortBy?: 'createdAt' | 'name' | 'email';
-      sortOrder?: 'asc' | 'desc';
+      sortOrder?: 'desc' | 'asc';
     };
 
     const result = await inviteService.getAllInvites({
@@ -123,7 +122,7 @@ export const getAllInvite = async (req: Request, res: Response) => {
       sortOrder
     }, req.user);
 
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         InviteMessages.GET_ALL_INVITES,
@@ -133,7 +132,7 @@ export const getAllInvite = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`

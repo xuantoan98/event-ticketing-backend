@@ -4,11 +4,18 @@ import InviteModel from "../models/Invite.model";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
 import { IUserDocument } from "../interfaces/User.interface";
 import { ApiError } from "../utils/ApiError";
-import { AuthMessages } from "../constants/messages";
+import { AuthMessages, CommonMessages, InviteMessages } from "../constants/messages";
 import { HTTP } from "../constants/https";
 import { Role } from "../constants/enum";
 
 export class InviteService {
+  /**
+   * Service thêm mới khách mời
+   * @param ivniteData 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
   async create(ivniteData: IInvites, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
@@ -20,13 +27,21 @@ export class InviteService {
     });
 
     if(inviteExit) {
-      throw new ApiError(HTTP.CONFLICT, 'Thông tin khách mời đã tồn tại');
+      throw new ApiError(HTTP.CONFLICT, InviteMessages.INVITE_EXITS);
     }
 
     const invite = await InviteModel.create(ivniteData);
     return invite;
   }
 
+  /**
+   * Service cập nhật khách mời
+   * @param inviteId 
+   * @param inviteData 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
   async update(inviteId: string, inviteData: IInvites, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
@@ -34,12 +49,17 @@ export class InviteService {
 
     // Chỉ admin mới được cập nhật khách mời
     if (!currentUser.role || currentUser.role.toString() !== Role.ADMIN.toString()) {
-      throw new ApiError(HTTP.FORBIDDEN, 'Bạn không có quyền cập nhật khách mời với vai trò này');
+      throw new ApiError(HTTP.FORBIDDEN, AuthMessages.PERMISSION_DENIED);
     }
 
     if(!Types.ObjectId.isValid(inviteId)) {
-      throw new ApiError(HTTP.BAD_REQUEST, 'ID khách mời không đúng');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
+
+    const inviteExit = await InviteModel.findById(inviteId);
+    if(!inviteExit) {
+      throw new ApiError(HTTP.NOT_FOUND, InviteMessages.NOT_FOUND);
+    };
 
     const invite = await InviteModel.findByIdAndUpdate(
       inviteId,
@@ -47,13 +67,16 @@ export class InviteService {
       { new: true, runValidators: true }
     ).exec();
 
-    if(!invite) {
-      throw new ApiError(HTTP.NOT_FOUND, 'Khách mời không tồn tại trong hệ thống');
-    }
-
     return invite;
   }
 
+  /**
+   * Service xóa khách mời
+   * @param inviteId 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
   async delete(inviteId: string, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
@@ -61,16 +84,16 @@ export class InviteService {
 
     // Chỉ admin mới được xóa khách mời
     if (!currentUser.role || currentUser.role.toString() !== Role.ADMIN.toString()) {
-      throw new ApiError(HTTP.FORBIDDEN, 'Bạn không có quyền xóa khách mời với vai trò này');
+      throw new ApiError(HTTP.FORBIDDEN, AuthMessages.PERMISSION_DENIED);
     }
 
     if(!Types.ObjectId.isValid(inviteId)) {
-      throw new ApiError(HTTP.BAD_REQUEST, 'ID khách mời không đúng');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     const inviteExit = await InviteModel.findById(inviteId);
     if(!inviteExit) {
-      throw new ApiError(HTTP.NOT_FOUND, 'Khách mời không tồn tại');
+      throw new ApiError(HTTP.NOT_FOUND, InviteMessages.NOT_FOUND);
     };
 
     // const result = await User.findOneAndDelete({ _id: userId })
@@ -82,6 +105,13 @@ export class InviteService {
     return result;
   }
 
+  /**
+   * Service lấy danh sách khách mời
+   * @param options 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
   async getAllInvites(options: PaginationOptions, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
@@ -114,18 +144,25 @@ export class InviteService {
     }
   }
 
+  /**
+   * Service lấy thông tin khách mời
+   * @param inviteId 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
   async getInviteById(inviteId: string, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
 
     if(!Types.ObjectId.isValid(inviteId)) {
-      throw new Error('ID khách mời không đúng');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     const invite = await InviteModel.findById(inviteId);
     if(!invite) {
-      throw new ApiError(HTTP.NOT_FOUND, 'Khách mời không tồn tại');
+      throw new ApiError(HTTP.NOT_FOUND, InviteMessages.NOT_FOUND);
     };
 
     return invite;
