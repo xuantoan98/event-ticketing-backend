@@ -6,6 +6,13 @@ import { HTTP } from "../constants/https";
 
 const feedbackService = new FeedbackService();
 
+/**
+ * Controller tạo mới phản hồi
+ * @param req 
+ * @param res 
+ * @returns 
+ * new feedback
+ */
 export const createFeedback = async (req: Request, res: Response) => {
   try {
     const result = await feedbackService.create(req.body, req.user);
@@ -26,6 +33,13 @@ export const createFeedback = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Controller cập nhật phản hồi
+ * @param req 
+ * @param res 
+ * @returns 
+ * feedback updated
+ */
 export const updateFeedback = async (req: Request, res: Response) => {
   try {
     const result = await feedbackService.update(req.params.id, req.body, req.user);
@@ -46,6 +60,13 @@ export const updateFeedback = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Controller xóa phản hồi
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const deleteFeedback = async (req: Request, res: Response) => {
   try {
     const result = await feedbackService.delete(req.params.id);
@@ -66,6 +87,13 @@ export const deleteFeedback = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Controller lấy thông tin phản hồi
+ * @param req 
+ * @param res 
+ * @returns 
+ * object feedback
+ */
 export const getFeedback = async (req: Request, res: Response) => {
   try {
     const result = await feedbackService.getFeedback(req.params.id.toString())
@@ -84,6 +112,13 @@ export const getFeedback = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Controller lấy danh sách phản hồi
+ * @param req 
+ * @param res 
+ * @returns 
+ * list feedbacks
+ */
 export const getFeedbacks = async (req: Request, res: Response) => {
   try {
     const {

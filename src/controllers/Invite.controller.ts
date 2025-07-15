@@ -7,6 +7,13 @@ import { HTTP } from "../constants/https";
 
 const inviteService = new InviteService();
 
+/**
+ * Controller tạo mới khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const createInvite = async (req: Request, res: Response) => {
   try {
     const inviteCreate = {
@@ -33,6 +40,13 @@ export const createInvite = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Controller cập nhật khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const updateInvite = async (req: Request, res: Response) => {
   try {
     const inviteUpdate = {
@@ -63,6 +77,13 @@ export const updateInvite = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Controller xóa khách mời 
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const deleteInvite = async (req: Request, res: Response) => {
   try {
     await inviteService.delete(req.params.id.toString());
@@ -82,6 +103,13 @@ export const deleteInvite = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Controller lấy thông tin khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const getDetailInvite = async (req: Request, res: Response) => {
   try {
     const invite = await inviteService.getInviteById(req.params.id.toString(), req.user);
@@ -101,6 +129,13 @@ export const getDetailInvite = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Controller lấy danh sách khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const getAllInvite = async (req: Request, res: Response) => {
   try {
     const {

@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import { IEvent } from "../interfaces/Event.interface";
-import { EventStatus } from "../constants/enum";
+import { EventLimitSeat, EventStatus } from "../constants/enum";
 
 const eventSchema = new Schema<IEvent>({
   title: {
@@ -50,15 +50,52 @@ const eventSchema = new Schema<IEvent>({
     ref: 'EventCategories',
     require: true
   }],
-  isLimitSeat: Number,
-  totalSeats: Number,
-  totalCustomerInvites: Number,
-  totalSupports: Number,
+  isLimitSeat: {
+    type: Number,
+    enum: Object.values(EventLimitSeat),
+    default: EventLimitSeat.NO_LIMIT
+  },
+  totalSeats: {
+    type: Number,
+    default: 0,
+    validate: {
+      validator: (value: number) => value >= 0,
+      message: '{PATH} phải lớn hơn hoặc bằng 0'
+    }
+  },
+  totalCustomerInvites: {
+    type: Number,
+    default: 0
+  },
+  totalSupports: {
+    type: Number,
+    default: 0
+  },
   totalDetails: Number,
-  totalCosts: Number,
-  totalFeedbacks: Number,
-  estimatePrice: Number,
-  realPrice: Number,
+  totalCosts: {
+    type: Number,
+    default: 0
+  },
+  totalFeedbacks: {
+    type: Number,
+    default: 0
+  },
+  estimatePrice: {
+    type: Number,
+    default: 0,
+    validate: {
+      validator: (value: number) => value >= 0,
+      message: '{PATH} phải lớn hơn hoặc bằng 0'
+    }
+  },
+  realPrice: {
+    type: Number,
+    default: 0,
+    validate: {
+      validator: (value: number) => value >= 0,
+      message: '{PATH} phải lớn hơn hoặc bằng 0'
+    }
+  },
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: 'User',
