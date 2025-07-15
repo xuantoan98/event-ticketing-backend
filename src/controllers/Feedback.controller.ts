@@ -1,8 +1,7 @@
 import { Request, Response } from "express"
 import { formatResponse } from "../utils/response.util";
-import { IFeedback } from "../interfaces/Feedback.interface";
 import { FeedbackService } from "../services";
-import { AuthMessages, FeedbackMessages } from "../constants/messages";
+import { FeedbackMessages } from "../constants/messages";
 import { HTTP } from "../constants/https";
 
 const feedbackService = new FeedbackService();
