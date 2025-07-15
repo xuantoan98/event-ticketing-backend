@@ -4,18 +4,24 @@ import { formatResponse } from "../utils/response.util";
 import { IEventSupport } from "../interfaces/EventSupport.interface";
 import { EventSupportMessages } from "../constants/messages";
 import EventSupport from "../models/EventSupport.model";
+import { HTTP } from "../constants/https";
 
 const eventSupportService = new EventSupportService();
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns new event support
+ */
 export const createEventSupport = async (req: Request, res: Response) => {
   try {
-    const dataCreate = {
+    const result = await eventSupportService.create({
       ...req.body,
       createdBy: req.user?._id
-    } as IEventSupport;
+    }, req.user);
 
-    const result = await eventSupportService.create(dataCreate);
-    return res.status(201).json(
+    return res.status(HTTP.CREATED).json(
       formatResponse(
         'success',
         EventSupportMessages.CREATE_SUCCESSFULLY,
@@ -23,7 +29,7 @@ export const createEventSupport = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -32,25 +38,20 @@ export const createEventSupport = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns event support updated
+ */
 export const updateEventSupport = async (req: Request, res: Response) => {
   try {
-    const eventSupportExit = await EventSupport.findById(req.params.id.toString());
-    if(!eventSupportExit) {
-      return res.status(404).json(
-        formatResponse(
-          'error',
-          EventSupportMessages.NOT_FOUND
-        )
-      );
-    };
-
-    const dataUpdate = {
+    const result = await eventSupportService.update(req.params.id, {
       ...req.body,
       updatedBy: req.user?._id
-    } as IEventSupport;
-
-    const result = await eventSupportService.update(req.params.id, dataUpdate);
-    return res.status(200).json(
+    });
+    
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         EventSupportMessages.UPDATE_SUCCESSFULLY,
@@ -58,7 +59,7 @@ export const updateEventSupport = async (req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`
@@ -67,6 +68,12 @@ export const updateEventSupport = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns message delete event support
+ */
 export const deleteEventSupport = async (req: Request, res: Response) => {
   try {
     const eventSupportExit = await EventSupport.findById(req.params.id.toString());
@@ -96,6 +103,12 @@ export const deleteEventSupport = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns detail event support
+ */
 export const getEventSupport = async (req: Request, res: Response) => {
   try {
     const result = await eventSupportService.getEventSupport(req.params.id.toString())
@@ -123,6 +136,12 @@ export const getEventSupport = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns list event supports
+ */
 export const getEventSupports = async (req: Request, res: Response) => {
   try {
     const {

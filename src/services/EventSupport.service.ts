@@ -5,15 +5,30 @@ import User from "../models/User.model";
 import { EventService } from "./Event.service";
 import { Status } from "../constants/enum";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
+import { ApiError } from "../utils/ApiError";
+import { HTTP } from "../constants/https";
+import { AuthMessages, CommonMessages, EventMessages, UserMessages } from "../constants/messages";
+import { IUserDocument } from "../interfaces/User.interface";
 
 const eventService = new EventService();
 
 export class EventSupportService {
-  async create(eventSupportCreate: IEventSupport) {
+  /**
+   * Service thêm mới người hỗ trợ sự kiện
+   * @param eventSupportCreate 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
+  async create(eventSupportCreate: IEventSupport, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (eventSupportCreate.eventId) {
       const eventExit = await eventService.getEventById(eventSupportCreate.eventId.toString());
       if (!eventExit) {
-        throw new Error('Sự kiện không tồn tại trong hệ thống');
+        throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
       }
     }
 
@@ -21,24 +36,39 @@ export class EventSupportService {
       for (const userId of eventSupportCreate.userId) {
         const userExit = await User.findById(userId);
         if (!userExit) {
-          throw new Error(`Người dùng không tồn tại trong hệ thống: ${userExit}`);
+          throw new ApiError(HTTP.NOT_FOUND, `${UserMessages.USER_NOT_FOUND}: ${userExit}`);
         }
       }
     }
 
     const result = await EventSupport.create(eventSupportCreate);
+    // Tạo mới thành công thì sẽ gửi thông báo tới người hỗ trợ
+    // Pending...
+
     return result;
   }
 
-  async update(eventSupportId: String, eventSupportUpdate: IEventSupport) {
+  /**
+   * Service cập nhật thông tin người hỗ trợ sự kiện
+   * @param eventSupportId 
+   * @param eventSupportUpdate 
+   * @param currentUser 
+   * @returns 
+   * 
+   */
+  async update(eventSupportId: String, eventSupportUpdate: IEventSupport, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (!Types.ObjectId.isValid(eventSupportId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     if (eventSupportUpdate.eventId) {
       const eventExit = await eventService.getEventById(eventSupportUpdate.eventId.toString());
       if (!eventExit) {
-        throw new Error('Sự kiện không tồn tại trong hệ thống');
+        throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
       }
     }
 
@@ -46,33 +76,67 @@ export class EventSupportService {
       for (const userId of eventSupportUpdate.userId) {
         const userExit = await User.findById(userId);
         if (!userExit) {
-          throw new Error(`Người dùng không tồn tại trong hệ thống: ${userExit}`);
+          throw new ApiError(HTTP.NOT_FOUND, `${UserMessages.USER_NOT_FOUND}: ${userExit}`);
         }
       }
     }
 
     const result = await EventSupport.findByIdAndUpdate(eventSupportId, eventSupportUpdate);
+    // Cần thông báo tới người hỗ trợ mới nếu có
+    // Pending...
+
     return result;
   }
 
-  async delete(eventSupportId: String) {
+  /**
+   * Service xóa người hỗ trợ sự kiện
+   * @param eventSupportId 
+   * @returns 
+   * 
+   */
+  async delete(eventSupportId: String, currentUser?:IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (!Types.ObjectId.isValid(eventSupportId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     const result = await EventSupport.findByIdAndUpdate(eventSupportId, { status: Status.INACTIVE });
     return result;
   }
 
-  async getEventSupport(eventSupportId: String) {
+  /**
+   * Service lấy thông tin người hỗ trợ sự kiện
+   * @param eventSupportId 
+   * @returns 
+   * 
+   */
+  async getEventSupport(eventSupportId: String, currentUser?:IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (!Types.ObjectId.isValid(eventSupportId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     return await EventSupport.findById(eventSupportId);
   }
 
-  async getEventSupports(query: string, options: PaginationOptions) {
+  /**
+   * Service danh sách hỗ trợ sự kiện
+   * @param query 
+   * @param options 
+   * @returns 
+   * 
+   */
+  async getEventSupports(query: string, options: PaginationOptions, currentUser?:IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+    
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;
     const sortField = sortBy as keyof IEventSupport;
