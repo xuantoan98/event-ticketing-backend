@@ -114,5 +114,7 @@ export enum FeedbackMessages {
 }
 
 export enum CommonMessages {
-  ID_INVALID = 'ID không hợp lệ'
+  ID_INVALID = 'ID không hợp lệ',
+  SENTMAIL_FAILED = 'Gửi mail thất bại',
+  SENTMAIL_SUCCESSFULLY = 'Gửi mail thành công'
 }
