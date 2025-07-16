@@ -9,11 +9,12 @@ import { IUserDocument } from "../interfaces/User.interface";
 
 export class EventCategoriesService {
   /**
-   * 
+   * Service thêm mới dạn mục sự kiện
    * @param eventCategoriesData 
    * @param currentUser 
    * @returns 
    * 
+   * new event category
    */
   async create(eventCategoriesData: IEventCategories, currentUser?: IUserDocument) {
     if (!currentUser) {
@@ -33,12 +34,13 @@ export class EventCategoriesService {
   };
 
   /**
-   * 
+   * Service cập nhật danh mục sự kiện
    * @param eventCatId 
    * @param eventCatUpdate 
    * @param currentUser 
    * @returns 
    * 
+   * updated event category
    */
   async update(eventCatId: string, eventCatUpdate: IEventCategories, currentUser?: IUserDocument) {
     if (!currentUser) {
@@ -62,6 +64,14 @@ export class EventCategoriesService {
     return result;
   };
 
+  /**
+   * Service xóa danh mục sự kiện
+   * @param eventCatId 
+   * @param currentUser 
+   * @returns 
+   * 
+   * thông báo xóa 
+   */
   async delete(eventCatId: string, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
@@ -85,6 +95,13 @@ export class EventCategoriesService {
     return result;
   };
 
+  /**
+   * Service lấy thông tin danh mục sự kiện
+   * @param eventCatId 
+   * @returns 
+   * 
+   * object event category
+   */
   async getEventCategoriesById(eventCatId: string) {
     if(!Types.ObjectId.isValid(eventCatId)) {
       throw new ApiError(HTTP.BAD_REQUEST, 'ID danh mục sự kiện không đúng');
@@ -98,6 +115,14 @@ export class EventCategoriesService {
     return eventCat;
   };
 
+  /**
+   * Service lấy danh sách danh mục sự kiện
+   * @param query 
+   * @param options 
+   * @returns 
+   * 
+   * List event category
+   */
   async getEventCategories(query: string, options: PaginationOptions) {
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;

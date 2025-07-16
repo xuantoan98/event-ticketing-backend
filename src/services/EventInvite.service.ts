@@ -5,16 +5,31 @@ import { EventService } from "./Event.service";
 import { InviteService } from "./Invite.service";
 import { Status } from "../constants/enum";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
+import { ApiError } from "../utils/ApiError";
+import { HTTP } from "../constants/https";
+import { AuthMessages, CommonMessages, EventMessages, InviteMessages } from "../constants/messages";
+import { IUserDocument } from "../interfaces/User.interface";
 
 const eventService = new EventService();
 const inviteService = new InviteService();
 
 export class EventIniteService {
-  async create(eventInviteData: IEventInvite) {
+  /**
+   * Tạo mới khách mời sự kiện
+   * @param eventInviteData 
+   * @returns 
+   * 
+   * new event invite
+   */
+  async create(eventInviteData: IEventInvite, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (eventInviteData.eventId) {
       const eventExit = await eventService.getEventById(eventInviteData._id);
       if (!eventExit) {
-        throw new Error('Sụ kiện không tồn tại trong hệ thống');
+        throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
       }
     }
 
@@ -22,24 +37,36 @@ export class EventIniteService {
       for (const inviteId of eventInviteData.inviteId) {
         const inviteExit = await inviteService.getInviteById(inviteId.toString());
         if (!inviteExit) {
-          throw new Error(`Khách mời không tồn tại trong hệ thống: ${inviteId}`);
+          throw new ApiError(HTTP.NOT_FOUND, `${InviteMessages.NOT_FOUND}: ${inviteId}`);
         }
       }
     }
 
-    const eventInvite = EventInviteModel.create(eventInviteData);
+    const eventInvite = await EventInviteModel.create(eventInviteData);
     return eventInvite;
   }
 
-  async update(eventInviteId: String, eventInviteUpdate: IEventInvite) {
+  /**
+   * Cập nhật khách mời sự kiện
+   * @param eventInviteId 
+   * @param eventInviteUpdate 
+   * @returns 
+   * 
+   * updated event invite
+   */
+  async update(eventInviteId: String, eventInviteUpdate: IEventInvite, currentUser?:IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (Types.ObjectId.isValid(eventInviteId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     if (eventInviteUpdate.eventId) {
       const eventExit = await eventService.getEventById(eventInviteUpdate._id);
       if (!eventExit) {
-        throw new Error('Sụ kiện không tồn tại trong hệ thống');
+        throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
       }
     }
 
@@ -47,24 +74,42 @@ export class EventIniteService {
       for (const inviteId of eventInviteUpdate.inviteId) {
         const inviteExit = await inviteService.getInviteById(inviteId.toString());
         if (!inviteExit) {
-          throw new Error(`Khách mời không tồn tại trong hệ thống: ${inviteId}`);
+          throw new ApiError(HTTP.NOT_FOUND, `${InviteMessages.NOT_FOUND}: ${inviteId}`);
         }
       }
     }
 
-    const eventInvite = EventInviteModel.findByIdAndUpdate(eventInviteId, eventInviteUpdate);
+    const eventInvite = await EventInviteModel.findByIdAndUpdate(eventInviteId, eventInviteUpdate);
     return eventInvite;
   }
 
-  async delete(eventInviteId: String) {
+  /**
+   * Xóa khách mời sự kiện
+   * @param eventInviteId 
+   * @returns 
+   * 
+   * thông báo
+   */
+  async delete(eventInviteId: String, currentUser?:IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (Types.ObjectId.isValid(eventInviteId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     const result = await EventInviteModel.findByIdAndUpdate(eventInviteId, { status: Status.INACTIVE });
     return result;
   }
 
+  /**
+   * Lấy danh sách
+   * @param options 
+   * @returns 
+   * 
+   * danh sách khách mời sự kiện
+   */
   async getEventInvites(options: PaginationOptions) {
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;
@@ -93,9 +138,20 @@ export class EventIniteService {
     }
   }
 
-  async getEventInvite(eventInviteId: String) {
+  /**
+   * Lấy thông tin chi tiết
+   * @param eventInviteId 
+   * @returns 
+   * 
+   * thông tin khách mời sự kiện
+   */
+  async getEventInvite(eventInviteId: String, currentUser?:IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+    
     if (Types.ObjectId.isValid(eventInviteId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     return await EventInviteModel.findById(eventInviteId);

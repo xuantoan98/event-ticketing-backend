@@ -1,5 +1,8 @@
 import User from "../models/User.model";
 import jwt from "jsonwebtoken";
+import { ApiError } from "../utils/ApiError";
+import { HTTP } from "../constants/https";
+
 require('dotenv').config();
 
 export class AuthService {
@@ -35,7 +38,7 @@ export class AuthService {
   ) {
     const user = await User.findOne({ email }).select('+password +refreshTokens');
     if (!user || !(await user.comparePassword(password))) {
-      throw new Error('Email hoặc mật khẩu không đúng');
+      throw new ApiError(HTTP.INTERNAL_ERROR, 'Email hoặc mật khẩu không đúng');
     }
     return user;
   }
@@ -81,7 +84,7 @@ export class AuthService {
     const user = await User.findById(decoded.userId).select('+refreshTokens');
     
     if (!user || !user.refreshTokens.includes(refreshToken)) {
-      throw new Error('Invalid refresh token');
+      throw new ApiError(HTTP.INTERNAL_ERROR, 'Invalid refresh token');
     }
     return user;
   }

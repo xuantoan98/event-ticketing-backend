@@ -3,15 +3,23 @@ import { IEventCost } from "../interfaces/EventCost.interface";
 import EventCost from "../models/EventCost.model";
 import { EventService } from "./Event.service";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
+import { ApiError } from "../utils/ApiError";
+import { HTTP } from "../constants/https";
+import { AuthMessages, CommonMessages, EventCostMessages, EventMessages } from "../constants/messages";
+import { IUserDocument } from "../interfaces/User.interface";
 
 const eventService = new EventService();
 
 export class EventCostService {
-  async create(dataCreate: IEventCost) {
+  async create(dataCreate: IEventCost, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (dataCreate.eventId) {
       const eventExit = await eventService.getEventById(dataCreate.eventId.toString());
       if (!eventExit) {
-        throw new Error('Sự kiện không tồn tại trong hệ thống');
+        throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
       }
     }
 
@@ -19,15 +27,19 @@ export class EventCostService {
     return result;
   }
 
-  async update(eventCostId: string, dataUpdate: IEventCost) {
+  async update(eventCostId: string, dataUpdate: IEventCost, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (!Types.ObjectId.isValid(eventCostId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     if (dataUpdate.eventId) {
       const eventExit = await eventService.getEventById(dataUpdate.eventId.toString());
       if (!eventExit) {
-        throw new Error('Sự kiện không tồn tại trong hệ thống');
+        throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
       }
     }
 
@@ -35,23 +47,31 @@ export class EventCostService {
     return result;
   }
 
-  async delete(eventCostId: string) {
+  async delete(eventCostId: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (!Types.ObjectId.isValid(eventCostId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     const result = await EventCost.findByIdAndDelete(eventCostId);
     return result;
   }
 
-  async getEventCost(eventCostId: string) {
+  async getEventCost(eventCostId: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if (!Types.ObjectId.isValid(eventCostId.toString())) {
-      throw new Error('ID không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     const result = await EventCost.findById(eventCostId);
     if (!result) {
-      throw new Error('Chi phí không tồn tại');
+      throw new ApiError(HTTP.NOT_FOUND, EventCostMessages.NOT_FOUND);
     }
 
     return result;

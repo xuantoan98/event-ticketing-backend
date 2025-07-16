@@ -3,9 +3,24 @@ import { IEvent } from "../interfaces/Event.interface";
 import EventModel from "../models/Event.model";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
 import { EventStatus } from "../constants/enum";
+import { ApiError } from "../utils/ApiError";
+import { HTTP } from "../constants/https";
+import { AuthMessages, CommonMessages, EventMessages } from "../constants/messages";
+import { IUserDocument } from "../interfaces/User.interface";
 
 export class EventService {
-  async create(eventData: IEvent) {
+  /**
+   * Tạo mới sự kiện
+   * @param eventData 
+   * @returns 
+   * 
+   * new event object
+   */
+  async create(eventData: IEvent, currentUser?:IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     // Check ticket ID
     // if(eventData.ticketsId) {
     //   for (const ticketId of eventData.ticketsId) {
@@ -19,7 +34,7 @@ export class EventService {
     if(eventData.eventCategoriesId) {
       for (const eventCategory of eventData.eventCategoriesId) {
         if(!Types.ObjectId.isValid(eventCategory.toString())) {
-          throw new Error(`Mã danh mục không hợp lệ: ${eventCategory}`);
+          throw new ApiError(HTTP.BAD_REQUEST, `${CommonMessages.ID_INVALID}: ${eventCategory}`);
         }
       }
     }
@@ -28,14 +43,26 @@ export class EventService {
     return event;
   }
 
-  async update(eventId: string, eventData: IEvent) {
+  /**
+   * Cập nhật sự kiện
+   * @param eventId 
+   * @param eventData 
+   * @returns 
+   * 
+   * event updated
+   */
+  async update(eventId: string, eventData: IEvent, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if(Types.ObjectId.isValid(eventId.toString())) {
-      throw new Error('ID sự kiện không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     if(eventData.startDate && eventData.endDate) {
       if (new Date(eventData.endDate) <= new Date(eventData.startDate)) {
-        throw new Error('Thời gian kết thúc phải lớn hơn thời gian bắt đầu');
+        throw new ApiError(HTTP.INTERNAL_ERROR, 'Thời gian kết thúc phải lớn hơn thời gian bắt đầu');
       }
     }
 
@@ -52,7 +79,7 @@ export class EventService {
     if(eventData.eventCategoriesId) {
       for (const eventCategory of eventData.eventCategoriesId) {
         if(!Types.ObjectId.isValid(eventCategory.toString())) {
-          throw new Error(`Mã danh mục không hợp lệ: ${eventCategory}`);
+          throw new ApiError(HTTP.BAD_REQUEST, `${CommonMessages.ID_INVALID}: ${eventCategory}`);
         }
       }
     }
@@ -64,34 +91,63 @@ export class EventService {
     ).exec();
 
     if (!eventUpdated) {
-      throw new Error('Không tìm thấy sự kiện để cập nhật');
+      throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
     }
 
     return eventUpdated;
   }
 
-  async delete(eventId: string) {
+  async delete(eventId: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if(Types.ObjectId.isValid(eventId.toString())) {
-      throw new Error('ID sự kiện không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     // const eventDeleted = await EventModel.findByIdAndDelete(eventId).exec();
     const eventDeleted = await EventModel.findByIdAndUpdate(eventId, { status: EventStatus.CANCELLED });
     if(!eventDeleted) {
-      throw new Error('Không tìm thấy sự kiện để xóa');
+      throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
     }
 
     return eventDeleted;
   }
 
-  async getEventById(eventId: string) {
-    if(!Types.ObjectId.isValid(eventId)) {
-      throw new Error('ID sự kiện không hợp lệ');
+  /**
+   * Lấy thông tin sự kiện
+   * @param eventId 
+   * @param currentUser 
+   * @returns 
+   * 
+   * Object event
+   */
+  async getEventById(eventId: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
 
-    return EventModel.findById(eventId).exec();
+    if(!Types.ObjectId.isValid(eventId)) {
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
+    }
+
+    const event = await EventModel.findById(eventId).exec();
+    if (!event) {
+      throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
+    }
+
+    return event;
   }
 
+  /**
+   * Lấy danh sách sự kiện
+   * @param query 
+   * @param options 
+   * @returns 
+   * 
+   * danh sách sự kiện
+   */
   async getEvents(query: string, options: PaginationOptions) {
     const { page, limit, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;
@@ -163,9 +219,21 @@ export class EventService {
   //   }
   // }
 
-  async cancelEvent(eventId: string) {
+  /**
+   * Hủy sự kiện
+   * @param eventId 
+   * @param currentUser 
+   * @returns 
+   * 
+   * Sự kiện đã hủy
+   */
+  async cancelEvent(eventId: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if(Types.ObjectId.isValid(eventId.toString())) {
-      throw new Error('ID sự kiện không hợp lệ');
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
     const eventCancelled = await EventModel.findByIdAndUpdate(
@@ -175,7 +243,7 @@ export class EventService {
     ).exec();
 
     if (!eventCancelled) {
-      throw new Error('Không tìm thấy sự kiện để cập nhật');
+      throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
     }
 
     return eventCancelled;

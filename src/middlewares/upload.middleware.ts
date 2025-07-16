@@ -1,6 +1,8 @@
 import multer from "multer";
 import { storage } from "../config/cloudinary";
 import { NextFunction, Request, Response } from "express";
+import { ApiError } from "../utils/ApiError";
+import { HTTP } from "../constants/https";
 
 export const upload = multer({
   storage,
@@ -12,7 +14,7 @@ export const upload = multer({
       cb(null, true);
     } else {
       console.error('[UPLOAD] Invalid file type:', file.mimetype);
-      cb(new Error('Invalid file type'));
+      cb(new ApiError(HTTP.INTERNAL_ERROR, 'Invalid file type'));
     }
   }
 })

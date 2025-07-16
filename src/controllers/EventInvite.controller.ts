@@ -7,6 +7,13 @@ import EventInvite from "../models/EventInvite.model";
 
 const eventInviteService = new EventIniteService();
 
+/**
+ * Controller thêm mới khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const createEventInvite = async (req:Request, res: Response) => {
   try {
     const user = req.user;
@@ -33,6 +40,13 @@ export const createEventInvite = async (req:Request, res: Response) => {
   }
 }
 
+/**
+ * Controller cập nhật khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const updateEventInvite = async (req:Request, res: Response) => {
   try {
     const eventInviteExit = await EventInvite.findById(req.params.id.toString());
@@ -68,6 +82,13 @@ export const updateEventInvite = async (req:Request, res: Response) => {
   }
 }
 
+/**
+ * Controller xóa khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const deleteEventInvite = async (req:Request, res: Response) => {
   try {
     const eventInviteExit = await EventInvite.findById(req.params.id.toString());
@@ -97,6 +118,13 @@ export const deleteEventInvite = async (req:Request, res: Response) => {
   }
 }
 
+/**
+ * Controller lấy danh sách khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const getEventInvites = async (req:Request, res: Response) => {
   try {
     const {
@@ -137,6 +165,13 @@ export const getEventInvites = async (req:Request, res: Response) => {
   }
 }
 
+/**
+ * Controller lấy thông tin khách mời
+ * @param req 
+ * @param res 
+ * @returns 
+ * 
+ */
 export const getEventInviteById = async (req:Request, res: Response) => {
   try {
     const eventInvite = await eventInviteService.getEventInvite(req.params.id.toString());
