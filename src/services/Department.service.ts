@@ -82,10 +82,7 @@ export class DepartmentService {
     }
 
     // const result = await User.findOneAndDelete({ _id: userId })
-    const result = await DepartmentModel.findOneAndUpdate({
-      _id: departmentId,
-      status: 0
-    });
+    const result = await DepartmentModel.findByIdAndUpdate(departmentId, { status: 0 });
 
     return result;
   }
