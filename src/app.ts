@@ -7,11 +7,14 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import { swaggerOptions } from './swaggers';
 import { errorHandler } from './middlewares/errorHandler.middleware';
+import cron from 'node-cron';
+import { EventService } from './services';
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 5000;
+const eventService = new EventService();
 
 app.use(cors());
 app.use(express.json());
@@ -39,3 +42,7 @@ app.get('/', (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+// cron.schedule('*/2 * * * *', async () => {
+//   await eventService.updateEventStatus();
+// });

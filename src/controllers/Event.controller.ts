@@ -4,6 +4,7 @@ import { formatResponse } from "../utils/response.util";
 import { AuthMessages, EventMessages } from "../constants/messages";
 import mongoose from "mongoose";
 import { IEvent } from "../interfaces/Event.interface";
+import { HTTP } from "../constants/https";
 
 const eventService = new EventService();
 
@@ -16,32 +17,13 @@ const eventService = new EventService();
  */
 export const createEvent = async(req: Request, res: Response) => {
   try {
-    const currentUser = req.user;
-    // if(!currentUser || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(currentUser.role)) {
-    //   return res.status(403).json(
-    //     formatResponse(
-    //       'error',
-    //       AuthMessages.FORBIDDEN
-    //     )
-    //   );
-    // }
-
-    if (!currentUser) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      );
-    }
-
-    const eventData = {
-      ...req.body,
-      createdBy: currentUser?._id
-    };
-
-    const event = await eventService.create(eventData);
-    return res.status(201).json(
+    const event = await eventService.create(
+      {
+        ...req.body,
+        createdBy: req.user?.id
+      }, req.user
+    );
+    return res.status(HTTP.CREATED).json(
       formatResponse(
         'success',
         EventMessages.CREATED,
@@ -49,10 +31,10 @@ export const createEvent = async(req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
-        `Lỗi hệ thống: ${error}`
+        `${error}`
       )
     );
   }

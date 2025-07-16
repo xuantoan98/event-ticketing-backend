@@ -20,7 +20,7 @@ export class EventService {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
-
+    
     // Check ticket ID
     // if(eventData.ticketsId) {
     //   for (const ticketId of eventData.ticketsId) {
@@ -97,6 +97,14 @@ export class EventService {
     return eventUpdated;
   }
 
+  /**
+   * Xóa sự kiện
+   * @param eventId 
+   * @param currentUser 
+   * @returns 
+   * 
+   * sự kiện updated
+   */
   async delete(eventId: string, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
@@ -312,6 +320,37 @@ export class EventService {
         limit,
         totalPages: Math.ceil(total / limit)
       }
+    }
+  }
+
+  async updateEventStatus(currentUser?: IUserDocument) {
+    try {
+      // if (!currentUser) {
+      //   throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+      // }
+
+      const currentTime = new Date();
+      const eventsToUpdate = await EventModel.find({
+        status: { $ne: EventStatus.CLOSED },
+        endDate: { $lt: currentTime }
+      });
+
+      if (eventsToUpdate.length === 0) {
+        console.log('Không có sự kiện nào cần cập nhật trạng thái.');
+        return;      
+      }
+
+      await EventModel.updateMany(
+        {
+          _id: { $in: eventsToUpdate.map((event: IEvent) => event._id) }
+        },
+        {
+          $set: { status: EventStatus.CLOSED }
+        }
+      );
+      console.log(`Đã cập nhật trạng thái cho ${eventsToUpdate.length} sự kiện sang CLOSED.`);
+    } catch (error) {
+      console.error('Lỗi khi cập nhật trạng thái sự kiện:', error);
     }
   }
 };

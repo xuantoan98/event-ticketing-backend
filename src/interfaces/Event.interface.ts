@@ -12,7 +12,7 @@ export interface IEvent {
   status: EventStatus;
   ticketsId?: Schema.Types.ObjectId[];
 
-  isLimitSeat?: EventLimitSeat;   // giới hạn chỗ ngồi
+  isLimitSeat?: Number;   // giới hạn chỗ ngồi
   totalSeats?: Number;            // Tổng số chỗ ngồi
   totalCustomerInvites?: Number;  // Tổng số khách mời
   totalSupports?: Number;         // Tổng số nhân viên hỗ trợ

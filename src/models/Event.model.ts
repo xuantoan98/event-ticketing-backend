@@ -52,7 +52,7 @@ const eventSchema = new Schema<IEvent>({
   }],
   isLimitSeat: {
     type: Number,
-    enum: Object.values(EventLimitSeat),
+    enum: EventLimitSeat,
     default: EventLimitSeat.NO_LIMIT
   },
   totalSeats: {
