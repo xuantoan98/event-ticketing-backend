@@ -153,10 +153,7 @@ export class UserService {
     }
 
     // const result = await User.findOneAndDelete({ _id: userId })
-    const result = await User.findOneAndUpdate({
-      _id: userId,
-      status: 0
-    });
+    const result = await User.findByIdAndUpdate(userId, { status: 0 });
 
     return result;
   }
@@ -245,8 +242,7 @@ export class UserService {
 
     const saltRounds = parseInt(process.env.SALT || '10', 10);
     const salt = await bcrypt.genSalt(saltRounds);
-    const user = await User.findOneAndUpdate({
-      _id: userId,
+    const user = await User.findByIdAndUpdate(userId, {
       password: await bcrypt.hash(password, salt),
       refreshTokens: [],
       passwordChangedAt: new Date()

@@ -87,10 +87,7 @@ export class EventCategoriesService {
     }
 
     // const result = await User.findOneAndDelete({ _id: userId })
-    const result = await EventCategoriesModel.findOneAndUpdate({
-      _id: eventCatId,
-      status: 0
-    });
+    const result = await EventCategoriesModel.findByIdAndUpdate(eventCatId, { status: 0 });
 
     return result;
   };

@@ -47,10 +47,7 @@ export class EventDetailService {
     }
 
     // const result = await User.findOneAndDelete({ _id: userId })
-    const result = await EventDetailModel.findOneAndUpdate({
-      _id: eventDetailId,
-      status: Status.INACTIVE
-    });
+    const result = await EventDetailModel.findByIdAndUpdate(eventDetailId, { status: Status.INACTIVE });
 
     return result;
   };

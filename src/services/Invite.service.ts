@@ -97,10 +97,7 @@ export class InviteService {
     };
 
     // const result = await User.findOneAndDelete({ _id: userId })
-    const result = await InviteModel.findOneAndUpdate({
-      _id: inviteId,
-      status: 0
-    });
+    const result = await InviteModel.findByIdAndUpdate(inviteId, { status: 0 });
 
     return result;
   }

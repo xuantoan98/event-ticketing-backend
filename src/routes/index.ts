@@ -19,7 +19,7 @@ router.use('/users', userRouter);
 router.use('/auth', authRouter);
 router.use('/departments', departmentRouter);
 router.use('/events', eventRouter);
-router.use('/event-catogories', eventCategoriesRouter);
+router.use('/event-categories', eventCategoriesRouter);
 router.use('/invite', inviteRouter);
 router.use('/event-invite', eventInviteRouter);
 router.use('/event-support', eventSupportRouter);
