@@ -18,7 +18,7 @@ export const createInvite = async (req: Request, res: Response) => {
   try {
     const inviteCreate = {
       ...req.body,
-      createdAt: req.user?._id
+      createdBy: req.user?._id
     } as IInvites;
 
     const invite = await inviteService.create(inviteCreate, req.user);
