@@ -23,7 +23,8 @@ export enum UserMessages {
   USER_CHOOSE_AVT = 'Vui lòng chọn ảnh đại diện',
   USER_UPDATE_AVT_SUCCESSFULLY = 'Cập nhật ảnh đại diện thành công',
   PASSWORD_INCORRECT = 'Mật khẩu cũ không chính xác',
-  UPDATE_PASSWORD_SUCCESSFULLY = 'Cập nhật mật khẩu thành công. Vui lòng đăng nhập lại'
+  UPDATE_PASSWORD_SUCCESSFULLY = 'Cập nhật mật khẩu thành công. Vui lòng đăng nhập lại',
+  USER_EMAIL_EXITS = 'Email đã tồn tại trong hệ thống'
 }
 
 export enum EventCategoriesMessages {

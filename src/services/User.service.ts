@@ -8,8 +8,12 @@ import { AuthMessages, UserMessages } from "../constants/messages";
 import { Role } from "../constants/enum";
 import { ApiError } from "../utils/ApiError";
 import { HTTP } from "../constants/https";
+import { EmailOptions } from "../interfaces/common/EmailOptions.interface";
+import { EmailService } from "./EmailService.service";
 
 require('dotenv').config();
+
+const emailService = new EmailService();
 
 export class UserService {
   async createUser(userData: IUserCreate, currentUser?: IUserDocument) {
@@ -45,10 +49,30 @@ export class UserService {
     });
 
     if(userExist) {
-      throw new ApiError(HTTP.CONFLICT, 'Người dùng đã tồn tại với email này');
+      throw new ApiError(HTTP.CONFLICT, UserMessages.USER_EMAIL_EXITS);
     }
 
     const user = await User.create(userData);
+
+    // Tạo người dùng xong, gửi 1 email tới user vừa tạo
+    // Khởi tạo giá trị
+    const emailOptionRegister: EmailOptions = {
+      to: user.email,
+      subject: 'Đăng ký tài khoản thành công',
+      template: 'registerNotification',
+      context: {
+        userName: user.name,
+        loginUrl: 'http://localhost:5173/login'
+      }
+    };
+
+    // Thực hiện gửi mail
+    try {
+      await emailService.sendMail(emailOptionRegister);
+    } catch (error) {
+      throw new ApiError(HTTP.BAD_REQUEST, 'Có lỗi khi gửi mail');
+    }
+
     return user;
   }
 
