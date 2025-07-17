@@ -1,4 +1,4 @@
-import nodemailer, { Transporter } from 'nodemailer';
+import nodemailer from 'nodemailer';
 import { EmailOptions } from '../interfaces/common/EmailOptions.interface';
 import path from 'path';
 import fs from 'fs';
@@ -7,20 +7,20 @@ import { ApiError } from '../utils/ApiError';
 import { HTTP } from '../constants/https';
 import { CommonMessages } from '../constants/messages';
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
 export class EmailService {
   async sendMail(options: EmailOptions) {
     try {
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        service: process.env.EMAIL_SERVICE || 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+      
       let htmlContent = options.html;
 
       // nếu sử dụng template

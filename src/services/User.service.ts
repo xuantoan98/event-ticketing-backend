@@ -13,8 +13,6 @@ import { EmailService } from "./EmailService.service";
 
 require('dotenv').config();
 
-const emailService = new EmailService();
-
 export class UserService {
   async createUser(userData: IUserCreate, currentUser?: IUserDocument) {
     if (!currentUser) {
@@ -68,6 +66,7 @@ export class UserService {
 
     // Thực hiện gửi mail
     try {
+      const emailService = new EmailService();
       await emailService.sendMail(emailOptionRegister);
     } catch (error) {
       throw new ApiError(HTTP.BAD_REQUEST, 'Có lỗi khi gửi mail');
