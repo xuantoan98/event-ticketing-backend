@@ -109,7 +109,7 @@ export class InviteService {
    * @returns 
    * 
    */
-  async getAllInvites(options: PaginationOptions, currentUser?: IUserDocument) {
+  async getAllInvites(query: string, options: PaginationOptions, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
@@ -121,13 +121,24 @@ export class InviteService {
       [sortField]: sortOrder === 'asc' ? 1 : -1
     };
 
+    let filter = {};
+    if (query) {
+      const searchRegex = new RegExp(query, 'i');
+      filter = {
+        $or: [
+          { name: { $regex: searchRegex }},
+          { email: { $regex: searchRegex }}
+        ]
+      }
+    }
+
     const [invites, total] = await Promise.all([
-      InviteModel.find()
+      InviteModel.find(filter)
         .sort(sort)
         .skip(skip)
         .limit(limit)
         .lean(),
-      InviteModel.countDocuments()
+      InviteModel.countDocuments(filter)
     ]);
 
     return {

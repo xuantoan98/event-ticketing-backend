@@ -132,7 +132,7 @@ export class DepartmentService {
         .limit(limit)
         .lean(),
       DepartmentModel.countDocuments(filter)
-    ])
+    ]);
 
     return {
       departments,

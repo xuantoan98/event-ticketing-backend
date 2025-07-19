@@ -86,7 +86,7 @@ export const updateInvite = async (req: Request, res: Response) => {
  */
 export const deleteInvite = async (req: Request, res: Response) => {
   try {
-    await inviteService.delete(req.params.id.toString());
+    await inviteService.delete(req.params.id.toString(), req.user);
     return res.status(HTTP.OK).json(
       formatResponse(
         'success',
@@ -139,18 +139,20 @@ export const getDetailInvite = async (req: Request, res: Response) => {
 export const getAllInvite = async (req: Request, res: Response) => {
   try {
     const {
+      q,
       page = 1,
       limit = 10,
       sortBy = 'createdAt',
       sortOrder = 'asc'
     } = req.query as {
+      q: string;
       page?: string;
       limit?: string;
       sortBy?: 'createdAt' | 'name' | 'email';
       sortOrder?: 'desc' | 'asc';
     };
 
-    const result = await inviteService.getAllInvites({
+    const result = await inviteService.getAllInvites(q, {
       page: parseInt(page as string),
       limit: parseInt(limit as string),
       sortBy,
