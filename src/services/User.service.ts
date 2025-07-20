@@ -37,7 +37,30 @@ export class UserService {
       if(!checkDepartment) throw new ApiError(HTTP.NOT_FOUND, 'Phòng ban không tồn tại');
     }
 
+    // thêm mật khẩu mặc định với các user mới
+    userData.password = process.env.DEFAULT_PASSWORD;
     const user = await User.create(userData);
+
+    // Tạo người dùng xong, gửi 1 email tới user vừa tạo
+    // Khởi tạo giá trị
+    const emailOptionRegister: EmailOptions = {
+      to: user.email,
+      subject: 'Đăng ký tài khoản thành công',
+      template: 'registerNotification',
+      context: {
+        userName: user.name,
+        loginUrl: 'http://localhost:5173/login'
+      }
+    };
+
+    // Thực hiện gửi mail
+    try {
+      const emailService = new EmailService();
+      await emailService.sendMail(emailOptionRegister);
+    } catch (error) {
+      throw new ApiError(HTTP.BAD_REQUEST, 'Có lỗi khi gửi mail');
+    }
+
     return user;
   }
 
@@ -174,6 +197,7 @@ export class UserService {
         ]
       })
         .select('-password')
+        .populate('departmentId', 'name')
         .sort(sort)
         .skip(skip)
         .limit(limit)

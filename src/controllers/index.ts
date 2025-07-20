@@ -10,3 +10,4 @@ export * as eventDetailController from "./EventDetail.controller";
 export * as eventCostController from "./EventCost.controller";
 export * as feedbackController from "./Feedback.controller";
 export * as sendMailController from "./SendMail.controller";
+export * as uploadFileController from "./UploadFile.controller";

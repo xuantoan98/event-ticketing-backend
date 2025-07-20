@@ -9,6 +9,7 @@ const router = Router();
 router.post('/register', validate('register'), userController.register);
 
 // Protected routes
+router.post('/', authMiddleware, validate('create'), userController.createUser);
 router.get('/', authMiddleware, validate('list'), userController.getUsers);
 // router.get('/search', authMiddleware(), validate('search'), userController.searchUsers)
 router.get('/:id', authMiddleware, userController.getCurrentUser);

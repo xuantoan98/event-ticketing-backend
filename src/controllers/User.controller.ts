@@ -141,6 +141,30 @@ export const updateUser = async(req: Request, res: Response) => {
   }
 }
 
+export const createUser = async(req: Request, res: Response) => {
+  try {
+    const user = await userService.createUser({
+      ...req.body,
+      createdBy: req.user?._id
+    }, req.user);
+
+    return res.status(HTTP.CREATED).json(
+      formatResponse(
+        'success',
+        UserMessages.REGISTER_SUCCESSFULLY,
+        user
+      )
+    )
+  } catch (error: any) {
+    return res.status(HTTP.INTERNAL_ERROR).json(
+      formatResponse(
+        'error',
+        `Xảy ra lỗi: ${error}`
+      )
+    )
+  }
+}
+
 /**
  * Xóa thông tin người dùng
  * @param req 

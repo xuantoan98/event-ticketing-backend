@@ -159,6 +159,42 @@ export const validate = (method: string) => {
       })
     }
 
+    case 'create': {
+      return checkSchema({
+        name: {
+          isString: true,
+          errorMessage: 'Tên phải là chuỗi',
+          isLength: {
+            options: { min: 2 },
+            errorMessage: 'Tên phải có ít nhất 2 ký tự'
+          }
+        },
+        email: {
+          isEmail: true,
+          errorMessage: 'Email không hợp lệ'
+        },
+        phone: {
+          matches: {
+            options: /([\+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/,
+            errorMessage: 'Số điện thoại không hợp lệ (10 số)'
+          }
+        },
+        dateOfBirth: {
+          optional: true,
+          isDate: {
+            errorMessage: 'Ngày sinh không hợp lệ (YYYY-MM-DD)'
+          }
+        },
+        gender: {
+          optional: true,
+          isIn: {
+            options: [Object.values(Gender)],
+            errorMessage: `Giới tính phải là một trong: ${Object.values(Gender).join(', ')}`
+          }
+        },
+      });
+    }
+
     default:
       return [];
   }

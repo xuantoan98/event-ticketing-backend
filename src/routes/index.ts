@@ -11,7 +11,7 @@ import eventDetailRouter from "./EventDetail.routes";
 import eventCostRouter from "./EventCost.routes";
 import feedbackRouter from "./Feedback.routes";
 import sendMailRouter from "./SendMail.routes";
-
+import uploadFileRouter from "./UploadFile.routes";
 
 const router = Router();
 
@@ -27,5 +27,6 @@ router.use('/event-detail', eventDetailRouter);
 router.use('/event-cost', eventCostRouter);
 router.use('/feedback', feedbackRouter);
 router.use('/sendmail', sendMailRouter);
+router.use('/upload-file', uploadFileRouter);
 
 export default router;

@@ -26,7 +26,7 @@ export interface IUserDocument extends Document {
 export interface IUserCreate {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role: string;
   status: number;
   dateOfBirth?: Date;
