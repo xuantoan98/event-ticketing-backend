@@ -174,15 +174,7 @@ export const createUser = async(req: Request, res: Response) => {
  */
 export const deleteUser = async(req: Request,res: Response) => {
   try {
-    if (!req.user) {
-      throw new ApiError(HTTP.UNAUTHORIZED, UserMessages.AUTH_ERROR);
-    }
-
-    const user = await userService.deleteUser(req.params.id.toString());
-    if (!user) {
-      throw new ApiError(HTTP.NOT_FOUND, UserMessages.USER_NOT_FOUND);
-    }
-
+    const user = await userService.deleteUser(req.params.id.toString(), req.user);
     return res.status(HTTP.OK).json(
       formatResponse(
         'success',

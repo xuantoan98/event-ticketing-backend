@@ -170,13 +170,20 @@ export class UserService {
     return user;
   }
 
-  async deleteUser(userId: string) {
+  async deleteUser(userId: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, UserMessages.AUTH_ERROR);
+    }
+
     if(!Types.ObjectId.isValid(userId)) {
       throw new ApiError(HTTP.BAD_REQUEST, 'ID người dùng không đúng');
     }
 
     // const result = await User.findOneAndDelete({ _id: userId })
     const result = await User.findByIdAndUpdate(userId, { status: 0 });
+    if (!result) {
+      throw new ApiError(HTTP.NOT_FOUND, UserMessages.USER_NOT_FOUND);
+    }
 
     return result;
   }
