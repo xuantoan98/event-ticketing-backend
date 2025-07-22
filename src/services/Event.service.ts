@@ -176,6 +176,7 @@ export class EventService {
 
     const [events, total] = await Promise.all([
       EventModel.find(filter)
+      .populate('eventCategoriesId', 'name')
       .sort(sort)
       .skip(skip)
       .limit(limit)
