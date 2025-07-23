@@ -202,8 +202,8 @@ export const getUsers = async(req: Request,res: Response) => {
   try {
     const { 
       q,
-      page = 1, 
-      limit = 10, 
+      page, 
+      limit, 
       sortBy = 'createdAt', 
       sortOrder = 'desc' 
     } = req.query as {
