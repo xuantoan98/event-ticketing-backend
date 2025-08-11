@@ -1,5 +1,5 @@
 import { Schema, Types } from "mongoose";
-import { IEventInvite } from "../interfaces/EventInvite.invterface";
+import { IEventInvite } from "../interfaces/EventInvite.interface";
 import EventInviteModel from "../models/EventInvite.model";
 import { EventService } from "./Event.service";
 import { InviteService } from "./Invite.service";

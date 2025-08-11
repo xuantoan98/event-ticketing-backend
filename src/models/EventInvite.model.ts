@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IEventInvite } from "../interfaces/EventInvite.invterface";
+import { IEventInvite } from "../interfaces/EventInvite.interface";
 import { Status } from "../constants/enum";
 
 const eventInviteSchema = new Schema<IEventInvite>({

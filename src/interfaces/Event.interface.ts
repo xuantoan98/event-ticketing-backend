@@ -27,4 +27,6 @@ export interface IEvent {
   updatedBy: Schema.Types.ObjectId;
 
   eventCategoriesId: Schema.Types.ObjectId[];
+  supporters: Schema.Types.ObjectId[];
+  invites: Schema.Types.ObjectId[];
 }

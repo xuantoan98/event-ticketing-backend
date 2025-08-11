@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { IEvent } from "../interfaces/Event.interface";
 import EventModel from "../models/Event.model";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
@@ -7,6 +7,9 @@ import { ApiError } from "../utils/ApiError";
 import { HTTP } from "../constants/https";
 import { AuthMessages, CommonMessages, EventMessages } from "../constants/messages";
 import { IUserDocument } from "../interfaces/User.interface";
+import User from "../models/User.model";
+import EventSupport from "../models/EventSupport.model";
+import EventInvite from "../models/EventInvite.model";
 
 export class EventService {
   /**
@@ -20,15 +23,6 @@ export class EventService {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
-    
-    // Check ticket ID
-    // if(eventData.ticketsId) {
-    //   for (const ticketId of eventData.ticketsId) {
-    //     if(!Types.ObjectId.isValid(ticketId.toString())) {
-    //       throw new Error(`Ticket ID không hợp lệ: ${ticketId}`);
-    //     }
-    //   }
-    // }
 
     // Check event categories ID
     if(eventData.eventCategoriesId) {
@@ -40,6 +34,37 @@ export class EventService {
     }
 
     const event = await EventModel.create(eventData);
+
+    // Trường hợp có dữ liệu người hỗ trợ thì thêm vào bảng eventSupport
+    if (eventData.supporters && eventData.supporters.length > 0) {
+      const payloadSupportEvent = {
+        eventId: event._id,
+        userId: eventData.supporters,
+        createdBy: currentUser._id
+      } as {
+        eventId: Schema.Types.ObjectId,
+        userId: Schema.Types.ObjectId[],
+        responsible?: String,
+        note?: String
+      };
+      // thêm vào csdl
+      await EventSupport.create(payloadSupportEvent);
+    }
+
+    // Trường hợp có dữ liệu khách mời thì thêm vào bảng eventInvite
+    if (eventData.invites && eventData.invites.length > 0) {
+      const payloadInviteEvent = {
+        eventId: event._id,
+        inviteId: eventData.invites,
+        createdBy: currentUser._id
+      } as {
+        eventId: Schema.Types.ObjectId,
+        inviteId: Schema.Types.ObjectId[]
+      };
+      // thêm vào csdl
+      await EventInvite.create(payloadInviteEvent);
+    }
+
     return event;
   }
 
@@ -56,7 +81,7 @@ export class EventService {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
 
-    if(Types.ObjectId.isValid(eventId.toString())) {
+    if(!Types.ObjectId.isValid(eventId.toString())) {
       throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
@@ -65,15 +90,6 @@ export class EventService {
         throw new ApiError(HTTP.INTERNAL_ERROR, 'Thời gian kết thúc phải lớn hơn thời gian bắt đầu');
       }
     }
-
-    // Check ticket ID
-    // if(eventData.ticketsId) {
-    //   for (const ticketId of eventData.ticketsId) {
-    //     if(!Types.ObjectId.isValid(ticketId.toString())) {
-    //       throw new Error(`Ticket ID không hợp lệ: ${ticketId}`);
-    //     }
-    //   }
-    // }
 
     // Check event categories ID
     if(eventData.eventCategoriesId) {
@@ -110,7 +126,7 @@ export class EventService {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
 
-    if(Types.ObjectId.isValid(eventId.toString())) {
+    if(!Types.ObjectId.isValid(eventId.toString())) {
       throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 
@@ -240,8 +256,8 @@ export class EventService {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
-
-    if(Types.ObjectId.isValid(eventId.toString())) {
+    
+    if(!Types.ObjectId.isValid(eventId.toString())) {
       throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
     }
 

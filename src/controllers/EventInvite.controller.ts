@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { EventIniteService } from "../services";
 import { formatResponse } from "../utils/response.util";
-import { IEventInvite } from "../interfaces/EventInvite.invterface";
+import { IEventInvite } from "../interfaces/EventInvite.interface";
 import { EventInviteMessages } from "../constants/messages";
 import EventInvite from "../models/EventInvite.model";
 

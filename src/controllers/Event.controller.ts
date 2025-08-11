@@ -312,17 +312,19 @@ export const getAllEvents = async(req: Request, res: Response) => {
  */
 export const cancellEvent = async(req: Request, res: Response) => {
   try {
-    if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          EventMessages.ID_NOT_VALID
-        )
-      );
-    }
+    // if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    //   return res.status(400).json(
+    //     formatResponse(
+    //       'error',
+    //       EventMessages.ID_NOT_VALID
+    //     )
+    //   );
+    // }
 
-    const user = req.user;
-    const eventExist = await eventService.getEventById(req.params.id);
+    // const eventExist = await eventService.getEventById(req.params.id, req.user);
+    // console.log(111);
+    
+
     // if(!user || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(user.role)) {
     //   return res.status(403).json(
     //     formatResponse(
@@ -332,25 +334,25 @@ export const cancellEvent = async(req: Request, res: Response) => {
     //   );
     // }
 
-    if (!user || eventExist?.createdBy.toString() !== user._id.toString()) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      );
-    }
+    // if (!user || eventExist?.createdBy.toString() !== user._id.toString()) {
+    //   return res.status(403).json(
+    //     formatResponse(
+    //       'error',
+    //       AuthMessages.FORBIDDEN
+    //     )
+    //   );
+    // }
 
-    if(!eventExist) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          EventMessages.NOT_FOUND
-        )
-      );
-    }
+    // if(!eventExist) {
+    //   return res.status(400).json(
+    //     formatResponse(
+    //       'error',
+    //       EventMessages.NOT_FOUND
+    //     )
+    //   );
+    // }
 
-    const eventCancelled = await eventService.cancelEvent(req.params.id);
+    const eventCancelled = await eventService.cancelEvent(req.params.id, req.user);    
     return res.status(200).json(
       formatResponse(
         'success',

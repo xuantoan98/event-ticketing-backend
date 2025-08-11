@@ -16,25 +16,23 @@ const eventSupportSchema = new Schema<IEventSupport>({
   responsible: { type: String },
   isAccept: {
     type: Number,
-    enum: Object.values(EventSupportAcceptStatus),
+    enum: EventSupportAcceptStatus,
     default: EventSupportAcceptStatus.ACCEPT
   },
   description: { type: String },
   note: { type: String },
   status: {
     type: Number,
-    enum: Object.values(Status),
+    enum: Status,
     default: Status.ACTIVE
   },
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    require: true
   },
   updatedBy: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    require: true
   }
 }, { timestamps: true });
 
