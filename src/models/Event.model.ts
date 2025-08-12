@@ -33,8 +33,7 @@ const eventSchema = new Schema<IEvent>({
     required: true
   },
   coverImage: {
-    type: String,
-    default: 'https://via.placeholder.com/600x400'
+    type: String
   },
   status: {
     type: String,

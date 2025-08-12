@@ -449,3 +449,31 @@ export const getEventsByTickets = async(req: Request, res: Response) => {
     );
   }
 }
+
+export const getMyEvents = async(req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(HTTP.UNAUTHORIZED).json(
+        formatResponse(
+          'error',
+          AuthMessages.UNAUTHORIZED
+        )
+      );
+    }
+    const events = await eventService.getMyEvents(req.user);
+    return res.status(HTTP.OK).json(
+      formatResponse(
+        'success',
+        EventMessages.GET_ALL_EVENT_SUCCESSFULLY,
+        events
+      )
+    );
+  } catch (error) {
+    return res.status(HTTP.INTERNAL_ERROR).json(
+      formatResponse(
+        'error',
+        `Lỗi hệ thống: ${error}`
+      )
+    );
+  }
+}

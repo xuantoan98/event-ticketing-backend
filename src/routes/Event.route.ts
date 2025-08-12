@@ -245,6 +245,7 @@ import { eventCreateValidator, updateEventValidator } from "../validators";
 const router = Router();
 
 router.get('/', authMiddleware, eventController.getAllEvents);
+router.get('/my-events', authMiddleware, eventController.getMyEvents);
 // router.get('/search', authMiddleware, searchEventValidator, eventController.searchEvents);
 router.get('/:id', authMiddleware, eventController.getEventById);
 

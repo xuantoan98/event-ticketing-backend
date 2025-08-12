@@ -7,7 +7,6 @@ import { ApiError } from "../utils/ApiError";
 import { HTTP } from "../constants/https";
 import { AuthMessages, CommonMessages, EventMessages } from "../constants/messages";
 import { IUserDocument } from "../interfaces/User.interface";
-import User from "../models/User.model";
 import EventSupport from "../models/EventSupport.model";
 import EventInvite from "../models/EventInvite.model";
 
@@ -353,8 +352,7 @@ export class EventService {
       });
 
       if (eventsToUpdate.length === 0) {
-        console.log('Không có sự kiện nào cần cập nhật trạng thái.');
-        return;      
+        throw new ApiError(HTTP.NOT_FOUND, 'Không có sự kiện nào cần cập nhật trạng thái.');   
       }
 
       await EventModel.updateMany(
@@ -367,7 +365,22 @@ export class EventService {
       );
       console.log(`Đã cập nhật trạng thái cho ${eventsToUpdate.length} sự kiện sang CLOSED.`);
     } catch (error) {
-      console.error('Lỗi khi cập nhật trạng thái sự kiện:', error);
+      throw new ApiError(HTTP.INTERNAL_ERROR, 'Lỗi khi cập nhật trạng thái sự kiện');
+    }
+  }
+
+  async getMyEvents(currentuser: IUserDocument) {
+    try {
+      if (!currentuser) {
+        throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+      }
+
+      const result = await EventModel.find({
+        createdBy: new Types.ObjectId(currentuser._id)
+      }).sort({ createdAt: -1 }).exec();
+      return result;
+    } catch (error) {
+      
     }
   }
 };
