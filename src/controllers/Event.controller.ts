@@ -49,53 +49,13 @@ export const createEvent = async(req: Request, res: Response) => {
  */
 export const updateEvent = async(req: Request, res: Response) => {
   try {
-    const eventId = req.params.id;
-    const currentUser = req.user;
-    // if(!currentUser || ![Role.ADMIN.toString(), Role.ORGANIZER.toString()].includes(currentUser.role)) {
-    //   return res.status(403).json(
-    //     formatResponse(
-    //       'error',
-    //       AuthMessages.FORBIDDEN
-    //     )
-    //   );
-    // }
-
-    if (!currentUser) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      );
-    }
-
-    const eventExist = await eventService.getEventById(eventId);
-    if(!eventExist) {
-      return res.status(400).json(
-        formatResponse(
-          'error',
-          EventMessages.NOT_FOUND
-        )
-      );
-    }
-
-    // Người dùng không tạo sự kiện thì không được sửa
-    if (eventExist.createdBy.toString() !== currentUser?._id.toString()) {
-      return res.status(403).json(
-        formatResponse(
-          'error',
-          AuthMessages.FORBIDDEN
-        )
-      );
-    }
-
     const updateData = {
       ...req.body,
-      updatedBy: currentUser._id
+      updatedBy: req.user?._id
     } as IEvent;
 
-    const result = await eventService.update(eventId, updateData);
-    return res.status(200).json(
+    const result = await eventService.update(req.params.id, updateData, req.user);
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         EventMessages.UPDATED,
@@ -103,10 +63,10 @@ export const updateEvent = async(req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
-        `Lỗi hệ thống: ${error}`
+        `${error}`
       )
     );
   }
@@ -243,7 +203,7 @@ export const getAllEvents = async(req: Request, res: Response) => {
       sortBy,
       sortOrder
     });
-    return res.status(200).json(
+    return res.status(HTTP.OK).json(
       formatResponse(
         'success',
         EventMessages.GET_ALL_EVENT_SUCCESSFULLY,
@@ -253,7 +213,7 @@ export const getAllEvents = async(req: Request, res: Response) => {
       )
     );
   } catch (error) {
-    return res.status(500).json(
+    return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
         `Lỗi hệ thống: ${error}`

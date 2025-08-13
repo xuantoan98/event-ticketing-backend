@@ -1,8 +1,8 @@
-import { Schema, Types } from "mongoose";
+import { PipelineStage, Schema, Types } from "mongoose";
 import { IEvent } from "../interfaces/Event.interface";
 import EventModel from "../models/Event.model";
 import { PaginationOptions } from "../interfaces/common/pagination.interface";
-import { EventStatus } from "../constants/enum";
+import { EventStatus, Role } from "../constants/enum";
 import { ApiError } from "../utils/ApiError";
 import { HTTP } from "../constants/https";
 import { AuthMessages, CommonMessages, EventMessages } from "../constants/messages";
@@ -78,17 +78,27 @@ export class EventService {
   async update(eventId: string, eventData: IEvent, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }    
+
+    if(!Types.ObjectId.isValid(eventId.toString())) {      
+      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
+    }    
+
+    const eventExist = await EventModel.findById(eventId);
+    if(!eventExist) {
+      throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
     }
 
-    if(!Types.ObjectId.isValid(eventId.toString())) {
-      throw new ApiError(HTTP.BAD_REQUEST, CommonMessages.ID_INVALID);
+    // Người dùng không tạo sự kiện thì không được sửa, nếu admin thì đc
+    if (currentUser.role.toString() !== Role.ADMIN.toString() && eventExist.createdBy.toString() !== currentUser?._id.toString()) {
+      throw new ApiError(HTTP.FORBIDDEN, 'Bạn không có quyền chỉnh sửa sự kiện này.');
     }
 
     if(eventData.startDate && eventData.endDate) {
-      if (new Date(eventData.endDate) <= new Date(eventData.startDate)) {
+      if (new Date(eventData.endDate).getTime() <= new Date(eventData.startDate).getTime()) {        
         throw new ApiError(HTTP.INTERNAL_ERROR, 'Thời gian kết thúc phải lớn hơn thời gian bắt đầu');
       }
-    }
+    }    
 
     // Check event categories ID
     if(eventData.eventCategoriesId) {
@@ -101,12 +111,25 @@ export class EventService {
 
     const eventUpdated = await EventModel.findByIdAndUpdate(
       eventId,
-      eventData,
-      { new: true, runValidators: true }
+      eventData
     ).exec();
+    
+    const eventSupport = await EventSupport.findOne({ eventId: eventUpdated?._id });
+    if (eventSupport) {
+      // trường hợp sửa sự kiện đã có thông tin người hỗ trợ -> cập nhật
+      const payloadUpdate = {
+        userId: eventData.supporters,
+        updatedBy: currentUser._id
+      };
+      const result = await EventSupport.findByIdAndUpdate(eventSupport._id, payloadUpdate);
+    } else {
+      // trường hợp sửa sự kiện chưa có thông tin người hỗ trợ -> thêm mới
+      const payloadCreate = {
+        userId: eventData.supporters,
+        createdBy: currentUser._id
+      };
 
-    if (!eventUpdated) {
-      throw new ApiError(HTTP.NOT_FOUND, EventMessages.NOT_FOUND);
+      const result = await EventSupport.create(payloadCreate);
     }
 
     return eventUpdated;
@@ -189,16 +212,88 @@ export class EventService {
       }
     }
 
+    const pipeline: PipelineStage[] = [
+      { $match: filter },
+      {
+        $lookup: {
+          from: 'eventsupports',
+          localField: '_id',
+          foreignField: 'eventId',
+          as: 'supports',
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                eventId: 1,
+                userId: 1
+              }
+            }
+          ]
+        }
+      },
+      // Join user cho từng support
+      {
+        $unwind: { path: '$supports', preserveNullAndEmptyArrays: true }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'supports.userId',
+          foreignField: '_id',
+          as: 'supports.userInfo'
+        }
+      },
+      {
+        $addFields: {
+          'supports.userInfo': {
+            $map: {
+              input: '$supports.userInfo',
+              as: 'u',
+              in: { _id: '$$u._id', name: '$$u.name' }
+            }
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'eventcategories',
+          localField: 'eventCategoriesId',
+          foreignField: '_id',
+          as: 'eventCategory',
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                name: 1
+              }
+            }
+          ]
+        }
+      }
+    ];
+
+    // Thêm sort + pagination
+    pipeline.push(
+      { $sort: sort },
+      { $skip: skip },
+      { $limit: limit }
+    );
+
     const [events, total] = await Promise.all([
-      EventModel.find(filter)
-      .populate('eventCategoriesId', 'name')
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .lean()
-      .exec(),
-      EventModel.countDocuments(filter)
+      EventModel.aggregate(pipeline),
+      EventModel.countDocuments({})
     ]);
+
+    // const [events, total] = await Promise.all([
+    //   EventModel.find(filter)
+    //   .populate('eventCategoriesId', 'name')
+    //   .sort(sort)
+    //   .skip(skip)
+    //   .limit(limit)
+    //   .lean()
+    //   .exec(),
+    //   EventModel.countDocuments(filter)
+    // ]);
 
     return {
       events,
