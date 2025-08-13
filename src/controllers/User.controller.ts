@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { UserService } from '../services';
 import { formatResponse } from '../utils/response.util';
 import { IUserCreate, IUserDocument } from '../interfaces/User.interface';
-import { UserMessages } from '../constants/messages';
+import { AuthMessages, UserMessages } from '../constants/messages';
 import { HTTP } from '../constants/https';
 import { ApiError } from '../utils/ApiError';
 import { uploadSingleImage } from '../services/upload.service';
@@ -327,9 +327,9 @@ export const updateAvatar = async(req: Request,res: Response) => {
 export const changePassword = async(req: Request,res: Response) => {
   try {
     if (!req.user) {
-      throw new ApiError(HTTP.UNAUTHORIZED, UserMessages.AUTH_ERROR);
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
-
+    
     const { oldPassword, newPassword } = req.body;
     const isMatch = await req.user.comparePassword(oldPassword);
 
@@ -337,7 +337,7 @@ export const changePassword = async(req: Request,res: Response) => {
       throw new ApiError(HTTP.INTERNAL_ERROR, UserMessages.PASSWORD_INCORRECT);
     }
 
-    const user = await userService.changePassword(req.user.id, newPassword);
+    const user = await userService.changePassword(req.user.id, newPassword, req.user);
     return res.status(HTTP.OK).json(
       formatResponse(
         'success',
@@ -349,7 +349,7 @@ export const changePassword = async(req: Request,res: Response) => {
     return res.status(HTTP.INTERNAL_ERROR).json(
       formatResponse(
         'error',
-        `Xảy ra lỗi: ${error}`
+        `${error}`
       )
     );
   }

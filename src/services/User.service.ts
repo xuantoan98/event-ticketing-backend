@@ -263,7 +263,11 @@ export class UserService {
     }
   }
 
-  async changePassword(userId: string, password: string) {
+  async changePassword(userId: string, password: string, currentUser?: IUserDocument) {
+    if (!currentUser) {
+      throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
+    }
+
     if(!Types.ObjectId.isValid(userId)) {
       throw new ApiError(HTTP.BAD_REQUEST, 'ID người dùng không đúng');
     }
