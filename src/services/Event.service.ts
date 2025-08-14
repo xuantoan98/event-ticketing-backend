@@ -271,7 +271,15 @@ export class EventService {
             }
           ]
         }
-      }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'createdBy',
+          foreignField: '_id',
+          as: 'userCreated'
+        }
+      },
     ];
 
     // Thêm sort + pagination
