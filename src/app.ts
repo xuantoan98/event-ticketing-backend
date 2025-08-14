@@ -43,6 +43,6 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-cron.schedule('*/2 * * * *', async () => {
-  await eventService.updateEventStatus();
-});
+// cron.schedule('*/2 * * * *', async () => {
+//   await eventService.updateEventStatus();
+// });

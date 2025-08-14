@@ -75,7 +75,7 @@ export class EventService {
    * 
    * event updated
    */
-  async update(eventId: string, eventData: IEvent, currentUser?: IUserDocument) {
+  async update(eventId: string, eventData: IEvent, currentUser?: IUserDocument) {    
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }    
@@ -113,11 +113,12 @@ export class EventService {
       eventId,
       eventData
     ).exec();
-    
+
     const eventSupport = await EventSupport.findOne({ eventId: eventUpdated?._id });
-    if (eventSupport) {
+    if (eventSupport) {      
       // trường hợp sửa sự kiện đã có thông tin người hỗ trợ -> cập nhật
       const payloadUpdate = {
+        eventId: eventUpdated?._id,
         userId: eventData.supporters,
         updatedBy: currentUser._id
       };
@@ -125,6 +126,7 @@ export class EventService {
     } else {
       // trường hợp sửa sự kiện chưa có thông tin người hỗ trợ -> thêm mới
       const payloadCreate = {
+        eventId: eventUpdated?._id,
         userId: eventData.supporters,
         createdBy: currentUser._id
       };
