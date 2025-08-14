@@ -434,11 +434,8 @@ export class EventService {
     }
   }
 
-  async updateEventStatus(currentUser?: IUserDocument) {
+  async updateEventStatus() {
     try {
-      // if (!currentUser) {
-      //   throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
-      // }
 
       const currentTime = new Date();
       const eventsToUpdate = await EventModel.find({
@@ -446,19 +443,40 @@ export class EventService {
         endDate: { $lt: currentTime }
       });
 
-      if (eventsToUpdate.length === 0) {
-        throw new ApiError(HTTP.NOT_FOUND, 'Không có sự kiện nào cần cập nhật trạng thái.');   
+      const eventsToUpdateInProcess = await EventModel.find({
+        status: EventStatus.CREATE,
+        startDate: { $gt: currentTime }
+      });
+
+      // Dành cho close sự kiện
+      if (eventsToUpdate.length > 0) {
+        await EventModel.updateMany(
+          {
+            _id: { $in: eventsToUpdate.map((event: IEvent) => event._id) }
+          },
+          {
+            $set: { status: EventStatus.CLOSED }
+          }
+        );
+        console.log(`Đã cập nhật trạng thái cho ${eventsToUpdate.length} sự kiện sang CLOSED.`); 
+      } else {
+        console.log('Không có sự kiện cần cập nhật');
       }
 
-      await EventModel.updateMany(
-        {
-          _id: { $in: eventsToUpdate.map((event: IEvent) => event._id) }
-        },
-        {
-          $set: { status: EventStatus.CLOSED }
-        }
-      );
-      console.log(`Đã cập nhật trạng thái cho ${eventsToUpdate.length} sự kiện sang CLOSED.`);
+      // Dành cho sự kiện đang diễn ra
+      if (eventsToUpdateInProcess.length > 0) {
+        await EventModel.updateMany(
+          {
+            _id: { $in: eventsToUpdateInProcess.map((event: IEvent) => event._id) }
+          },
+          {
+            $set: { status: EventStatus.PROCESS }
+          }
+        );
+        console.log(`Đã cập nhật trạng thái cho ${eventsToUpdateInProcess.length} sự kiện sang PROCESS.`); 
+      } else {
+        console.log('Không có sự kiện cần cập nhật');
+      }
     } catch (error) {
       throw new ApiError(HTTP.INTERNAL_ERROR, 'Lỗi khi cập nhật trạng thái sự kiện');
     }
