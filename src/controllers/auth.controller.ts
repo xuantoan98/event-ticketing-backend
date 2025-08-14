@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services";
 import { formatResponse } from "../utils/response.util";
 import { IUserDocument } from "../interfaces/User.interface";
+import { HTTP } from "../constants/https";
+import { UserMessages } from "../constants/messages";
 
 const authService = new AuthService();
 
@@ -70,6 +72,26 @@ export class AuthController {
         formatResponse(
           'error',
           error.message
+        )
+      )
+    }
+  }
+
+  async forgotPassword(req: Request, res: Response) {
+    try {
+      const result = await authService.forgotPassword(req.body.email);
+      return res.status(HTTP.OK).json(
+        formatResponse(
+          'success',
+          UserMessages.CHANGE_PASSWORD_SUCCESSFULLY,
+          result
+        )
+      );
+    } catch (error) {
+      return res.status(HTTP.INTERNAL_ERROR).json(
+        formatResponse(
+          'error',
+          `${error}`
         )
       )
     }

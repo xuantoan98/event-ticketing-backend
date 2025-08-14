@@ -2,6 +2,11 @@ import User from "../models/User.model";
 import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/ApiError";
 import { HTTP } from "../constants/https";
+import { IUserDocument } from "../interfaces/User.interface";
+import { AuthMessages, UserMessages } from "../constants/messages";
+import bcrypt from "bcrypt";
+import { EmailOptions } from "../interfaces/common/EmailOptions.interface";
+import { EmailService } from "./EmailService.service";
 
 require('dotenv').config();
 
@@ -87,5 +92,40 @@ export class AuthService {
       throw new ApiError(HTTP.INTERNAL_ERROR, 'Invalid refresh token');
     }
     return user;
+  }
+
+  async forgotPassword(email: string) {
+    const user = await User.findOne({email: email});
+    if (!user) {
+      throw new ApiError(HTTP.NOT_FOUND, UserMessages.USER_NOT_FOUND);
+    }
+
+    const saltRounds = parseInt(process.env.SALT || '10', 10);
+    const salt = await bcrypt.genSalt(saltRounds);
+
+    const userUpdate = await User.findByIdAndUpdate(user._id, {
+      password: await bcrypt.hash('masterx@1234', salt),
+      passwordChangedAt: new Date()
+    }).select('-password') as IUserDocument;
+
+
+    // Thay đổi mật khẩu xong, gửi 1 email tới email trên
+    // Khởi tạo giá trị
+    const emailOptionRegister: EmailOptions = {
+      to: user.email,
+      subject: 'Thay đổi mật khẩu thành công',
+      text: 'Mật khẩu đăng nhập của bạn đã được thay đổi. Vui lòng đăng nhập với mật khẩu mới: masterx@1234'
+    };
+
+    // Thực hiện gửi mail
+    try {
+      const emailService = new EmailService();
+      await emailService.sendMail(emailOptionRegister);
+    } catch (error) {
+      throw new ApiError(HTTP.BAD_REQUEST, 'Có lỗi khi gửi mail');
+    }
+
+    return userUpdate;
+
   }
 }

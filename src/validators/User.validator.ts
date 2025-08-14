@@ -40,6 +40,16 @@ export const validate = (method: string) => {
       });
     }
 
+    case 'forgotPassword': {
+      return checkSchema({
+        email: { 
+          isEmail: true, 
+          errorMessage: 'Email không hợp lệ',
+          notEmpty: true
+        }
+      });
+    }
+
     case 'update': {
       return checkSchema({
         name: {
