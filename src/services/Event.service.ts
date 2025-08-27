@@ -196,15 +196,15 @@ export class EventService {
    * 
    * danh sách sự kiện
    */
-  async getEvents(query: string, options: PaginationOptions) {
-    const { page, limit, sortBy, sortOrder } = options;
+  async getEvents(query: string, options: PaginationOptions & { startDate?: string; endDate?: string; eventCategory?: string }) {
+    const { page, limit, sortBy, sortOrder, startDate, endDate, eventCategory } = options;
     const skip = (page - 1) * limit;
     const sortField = sortBy as keyof IEvent;
     const sort: Record<string, 1 | -1> = {
       [sortField]: sortOrder === 'asc' ? 1 : -1
     };
 
-    let filter = {};
+    let filter: any = {};
     if (query) {
       const searchRegex = new RegExp(query, 'i');
       filter = {
@@ -213,6 +213,19 @@ export class EventService {
         ]
       }
     }
+
+    // Lọc theo khoảng thời gian
+    if (startDate || endDate) {
+      filter.startDate = {};
+
+      if (startDate) filter.startDate.$gte = new Date(startDate);
+      if (endDate) filter.startDate.$lte = new Date(endDate);
+    }
+
+    // Lọc theo category (trường eventCategoriesId là mảng -> dùng $in)
+    if (eventCategory) {
+      filter.eventCategoriesId = { $in: [new Types.ObjectId(eventCategory)] };
+    }    
 
     const pipeline: PipelineStage[] = [
       { $match: filter },
@@ -280,6 +293,9 @@ export class EventService {
           as: 'userCreated'
         }
       },
+      {
+        $unwind: { path: '$userCreated', preserveNullAndEmptyArrays: true }
+      },
     ];
 
     // Thêm sort + pagination
@@ -291,19 +307,8 @@ export class EventService {
 
     const [events, total] = await Promise.all([
       EventModel.aggregate(pipeline),
-      EventModel.countDocuments({})
+      EventModel.countDocuments(filter)
     ]);
-
-    // const [events, total] = await Promise.all([
-    //   EventModel.find(filter)
-    //   .populate('eventCategoriesId', 'name')
-    //   .sort(sort)
-    //   .skip(skip)
-    //   .limit(limit)
-    //   .lean()
-    //   .exec(),
-    //   EventModel.countDocuments(filter)
-    // ]);
 
     return {
       events,

@@ -188,20 +188,29 @@ export const getAllEvents = async(req: Request, res: Response) => {
       page = 1,
       limit = 10,
       sortBy = 'createdAt',
-      sortOrder = 'asc'
+      sortOrder = 'asc',
+      eventCategory,
+      startDate,
+      endDate
     } = req.query as {
       q: string;
       page?: string;
       limit?: string;
       sortBy?: 'createdAt';
       sortOrder?: 'asc' | 'desc';
+      eventCategory?: string;
+      startDate?: string;
+      endDate?: string;
     };
 
     const result = await eventService.getEvents(q, {
       page: parseInt(page as string),
       limit: parseInt(limit as string),
       sortBy,
-      sortOrder
+      sortOrder,
+      eventCategory,
+      startDate,
+      endDate
     });
     return res.status(HTTP.OK).json(
       formatResponse(
