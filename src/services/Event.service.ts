@@ -75,7 +75,7 @@ export class EventService {
    * 
    * event updated
    */
-  async update(eventId: string, eventData: IEvent, currentUser?: IUserDocument) {    
+  async update(eventId: string, eventData: IEvent, currentUser?: IUserDocument) {
     if (!currentUser) {
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }    
@@ -107,7 +107,7 @@ export class EventService {
           throw new ApiError(HTTP.BAD_REQUEST, `${CommonMessages.ID_INVALID}: ${eventCategory}`);
         }
       }
-    }
+    }    
 
     const eventUpdated = await EventModel.findByIdAndUpdate(
       eventId,
@@ -132,6 +132,26 @@ export class EventService {
       };
 
       const result = await EventSupport.create(payloadCreate);
+    }
+
+    const eventInvite = await EventInvite.findOne({ eventId: eventUpdated?._id });
+    if (eventInvite) {      
+      // trường hợp sửa sự kiện đã có thông tin khách mời -> cập nhật
+      const payloadUpdate = {
+        eventId: eventUpdated?._id,
+        inviteId: eventData.invites,
+        updatedBy: currentUser._id
+      };
+      const result = await EventInvite.findByIdAndUpdate(eventInvite._id, payloadUpdate);
+    } else {
+      // trường hợp sửa sự kiện chưa có thông tin người hỗ trợ -> thêm mới
+      const payloadCreate = {
+        eventId: eventUpdated?._id,
+        inviteId: eventData.invites,
+        updatedBy: currentUser._id
+      };
+
+      const result = await EventInvite.create(payloadCreate);
     }
 
     return eventUpdated;
@@ -252,6 +272,27 @@ export class EventService {
       },
       {
         $lookup: {
+          from: 'eventinvites',
+          localField: '_id',
+          foreignField: 'eventId',
+          as: 'invites',
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                eventId: 1,
+                inviteId: 1
+              }
+            }
+          ]
+        }
+      },
+      // khách mời
+      {
+        $unwind: { path: '$invites', preserveNullAndEmptyArrays: true }
+      },
+      {
+        $lookup: {
           from: 'users',
           localField: 'supports.userId',
           foreignField: '_id',
@@ -290,7 +331,15 @@ export class EventService {
           from: 'users',
           localField: 'createdBy',
           foreignField: '_id',
-          as: 'userCreated'
+          as: 'userCreated',
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                name: 1
+              }
+            }
+          ]
         }
       },
       {
