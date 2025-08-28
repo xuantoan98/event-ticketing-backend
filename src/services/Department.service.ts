@@ -36,7 +36,7 @@ export class DepartmentService {
    * @returns 
    */
   async update(departmentId: string, departmentUpdate: IDepartments, currentUser?: IUserDocument) {
-    if (!currentUser) {
+    if (!currentUser) {      
       throw new ApiError(HTTP.UNAUTHORIZED, AuthMessages.UNAUTHORIZED);
     }
 

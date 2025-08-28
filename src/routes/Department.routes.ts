@@ -226,7 +226,7 @@ router.get('/', authMiddleware, departmentController.getAllDepartments);
 // router.get('/search', authMiddleware, searchDepartmentValidator, departmentController.search);
 router.get('/:id', authMiddleware, departmentController.getDetailDepartment);
 router.post('/', authMiddleware, createDepartmentValidator, departmentController.createDepartment);
-router.put('/:id', authMiddleware, requireAdmin, updateDepartmentValidator, departmentController.updateDepartment);
-router.delete('/:id', authMiddleware, requireAdmin, departmentController.deleteDepartment);
+router.put('/:id', authMiddleware, updateDepartmentValidator, departmentController.updateDepartment);
+router.delete('/:id', authMiddleware, departmentController.deleteDepartment);
 
 export default router;

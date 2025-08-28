@@ -12,7 +12,7 @@ const eventSchema = new Schema<IEvent>({
   description: {
     type: String,
     required: true,
-    minlength: 50
+    minlength: 10
   },
   startDate: {
     type: Date,

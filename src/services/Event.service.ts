@@ -9,6 +9,7 @@ import { AuthMessages, CommonMessages, EventMessages } from "../constants/messag
 import { IUserDocument } from "../interfaces/User.interface";
 import EventSupport from "../models/EventSupport.model";
 import EventInvite from "../models/EventInvite.model";
+import { nowUTC, toUTC } from "../utils/dateUtils";
 
 export class EventService {
   /**
@@ -31,6 +32,14 @@ export class EventService {
         }
       }
     }
+
+    if (eventData.startDate) {
+      eventData.startDate = toUTC(eventData.startDate);
+    }
+
+    if (eventData.endDate) {
+      eventData.endDate = toUTC(eventData.endDate);
+    }    
 
     const event = await EventModel.create(eventData);
 
@@ -236,11 +245,16 @@ export class EventService {
 
     // Lọc theo khoảng thời gian
     if (startDate || endDate) {
-      filter.startDate = {};
+      filter.$and = [];
 
-      if (startDate) filter.startDate.$gte = new Date(startDate);
-      if (endDate) filter.startDate.$lte = new Date(endDate);
-    }
+      if (startDate) {
+        filter.$and.push({ endDate: { $gte: toUTC(startDate) } }); 
+      }
+
+      if (endDate) {
+        filter.$and.push({ startDate: { $lte: toUTC(endDate) } }); 
+      }
+    }    
 
     // Lọc theo category (trường eventCategoriesId là mảng -> dùng $in)
     if (eventCategory) {
@@ -501,7 +515,7 @@ export class EventService {
   async updateEventStatus() {
     try {
 
-      const currentTime = new Date();
+      const currentTime = nowUTC();
       const eventsToUpdate = await EventModel.find({
         status: { $ne: EventStatus.CLOSED },
         endDate: { $lt: currentTime }
@@ -509,7 +523,7 @@ export class EventService {
 
       const eventsToUpdateInProcess = await EventModel.find({
         status: EventStatus.CREATE,
-        startDate: { $gt: currentTime }
+        startDate: { $lte: currentTime }
       });
 
       // Dành cho close sự kiện
@@ -523,8 +537,6 @@ export class EventService {
           }
         );
         console.log(`Đã cập nhật trạng thái cho ${eventsToUpdate.length} sự kiện sang CLOSED.`); 
-      } else {
-        console.log('Không có sự kiện cần cập nhật');
       }
 
       // Dành cho sự kiện đang diễn ra
@@ -538,8 +550,6 @@ export class EventService {
           }
         );
         console.log(`Đã cập nhật trạng thái cho ${eventsToUpdateInProcess.length} sự kiện sang PROCESS.`); 
-      } else {
-        console.log('Không có sự kiện cần cập nhật');
       }
     } catch (error) {
       throw new ApiError(HTTP.INTERNAL_ERROR, 'Lỗi khi cập nhật trạng thái sự kiện');
